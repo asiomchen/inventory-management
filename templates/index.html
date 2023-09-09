@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="title">{% block title %} products {% endblock %}</h1>
+    <div class="content">
+        {% for product in products %}
+            <div class="product">
+                <p><b>#{{ product.idx }}</b></p>
+                <b>
+                    <p class="name">
+                        <a href="{{ url_for('product', product_id=product.idx)}}">
+                            {{ product.title }}
+                        </a>
+                    </p>
+                </b>
+                <p>
+                    {% if product.photo != 'No photo' %}
+                        <img src="{{ url_for('uploaded_file', filename=product.photo)}}" alt="photo" width="200" height="200">
+                    {% else %}
+                        No photo
+                    {% endif %}
+                </p> 
+                <br>
+                <p>Weight: {{ product.weight }} kg</p>
+                <p>Purchase price: {{ product.purchase_price }} $</p>
+                <p>Sale price: {{ product.sale_price }} $</p>
+                <p>Quantity: {{ product.quantity }}</p>
+                <p>Profit: {{ product.profit }} $</p>
+                <div class="description">
+                    <details name="description">
+                        <summary style="font-weight: bold">Description</summary>
+                        <p>{{ product.description }}
+                        </p>
+                    </details>
+                    
+                </div>
+                
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

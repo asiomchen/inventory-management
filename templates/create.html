@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 style="width: 100%">{% block title %} Add a product {% endblock %}</h1>
+    <form method="post" enctype="multipart/form-data" class="form">
+        <p>
+            <label for="Title">Title</label>
+            <input type="text" name="title"
+                   placeholder="Title">
+            </input>
+        </p>
+        <p>
+            <label for="Photo upload" >Photo</label>
+            <input type="file" name="photo"
+                   accept="image/*">
+            </input>
+        </p>
+        <p>
+            <label for="Weight">Weight</label>
+            <input type="text" name="weight"
+                   placeholder="Weight">
+            </input>
+        </p>
+        <p>
+            <label for="Purchase Price">Purchase Price</label>
+            <input type="text" name="purchase_price"
+                   placeholder="Purchase Price">
+            </input>
+        </p>
+        <p>
+            <label for="Sale Price">Sale Price</label>
+            <input type="text" name="sale_price"
+                   placeholder="Sale Price">
+            </input>
+        </p>
+        <p>
+            <label for="Quantity">Quantity</label>
+            <input type="text" name="quantity"
+                   placeholder="Quantity">
+            </input>
+        </p>
+        <p>
+            <label for="Description">Description</label>
+            <br>
+            <textarea name="description" rows="10" cols="30"
+                      placeholder="Description"></textarea>
+        </p>
+        <p>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </p>
+    </form>
+{% endblock %}
