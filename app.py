@@ -1,10 +1,12 @@
 import os
 from pydoc import describe
 import re
+import stat
+from turtle import title
 from flask import Flask, render_template, request, url_for, redirect, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
-
+import logging
 from sqlalchemy.sql import func
 
 
@@ -31,6 +33,50 @@ class Product(db.Model):
 
     def __repr__(self):
         return '<Product %r>' % self.title
+    
+    
+class InvoiceProduct(db.Model):
+    idx = db.Column(db.Integer, primary_key=True)
+    invoice_idx = db.Column(db.Integer, db.ForeignKey('invoice.idx'))
+    product_idx = db.Column(db.Integer, db.ForeignKey('product.idx'))
+    product = db.relationship('Product', backref='invoice', lazy=True)
+    quantity = db.Column(db.Integer)
+    weight = db.Column(db.Float)
+    purchase_price = db.Column(db.Float)
+    sale_price = db.Column(db.Float)
+    profit = db.Column(db.Float)
+
+    def __repr__(self):
+        return '<InvoiceProduct %r>' % self.idx
+    
+class Invoice(db.Model):
+    idx = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    invoice_products = db.relationship('InvoiceProduct', backref='invoice', lazy=True)
+    total_weight = db.Column(db.Float)
+    total_purchase_price = db.Column(db.Float)
+    total_sale_price = db.Column(db.Float)
+    total_profit = db.Column(db.Float)
+    status = db.Column(db.String(255), default='open')
+
+    def __repr__(self):
+        return '<Invoice %r>' % self.idx
+    
+#init database on first run
+with app.app_context():
+    db.create_all()
+    if not Product.query.all():
+        product = Product(title='Product 1', 
+                          description='Product 1 description', 
+                          quantity=10, 
+                          photo='No photo', 
+                          weight=1.0, 
+                          purchase_price=1.0, 
+                          sale_price=2.0, 
+                          profit=1.0)
+        db.session.add(product)
+        db.session.commit()
+
 
 @app.route('/')
 def index():
@@ -126,6 +172,61 @@ def table():
     products = Product.query.all()
     return render_template('table.html', products=products)
 
-@app.route('/add2invoice/<int:product_id>/')
+@app.route('/add2invoice/<int:product_id>/', methods=('POST',))
 def add2invoice(product_id):
+    product = Product.query.get_or_404(product_id)
+    quantity = int(request.form['quantity'])
+    weight = product.weight * quantity
+    purchase_price = product.purchase_price * quantity
+    sale_price = product.sale_price * quantity
+    profit = sale_price - purchase_price
+    latest_invoice = Invoice.query.order_by(Invoice.idx.desc()).first()
+    if latest_invoice is None:
+        invoice_id = 1
+    else:
+        latest_invoice_id = latest_invoice.idx
+        if latest_invoice.status == 'closed':
+            invoice_id = latest_invoice_id + 1
+        if latest_invoice.status == 'open':
+            invoice_id = latest_invoice_id
+        else:
+            raise Exception('Invoice status is not open or closed')
+    invoice_product = InvoiceProduct(invoice_idx=invoice_id,
+                                        product_idx=product_id,
+                                        quantity=quantity,
+                                        weight=weight,
+                                        purchase_price=purchase_price,
+                                        sale_price=sale_price,
+                                        profit=profit)
+    if Invoice.query.get(invoice_id) is None:
+        invoice = Invoice(
+            idx=invoice_id,    
+            total_weight=weight, 
+            total_purchase_price=purchase_price, 
+            total_sale_price=sale_price, 
+            total_profit=profit)
+        db.session.add(invoice)
+    else:
+        invoice = Invoice.query.get(invoice_id)
+        invoice.total_weight += weight
+        invoice.total_purchase_price += purchase_price
+        invoice.total_sale_price += sale_price
+        invoice.total_profit += profit
+        db.session.merge(invoice)
+    
+
+    db.session.add(invoice_product)
+    db.session.commit()
     return redirect(url_for('table'))
+
+@app.route('/invoice/<int:invoice_id>/')
+def invoice(invoice_id):
+    invoice = Invoice.query.get_or_404(invoice_id)
+    products = InvoiceProduct.query.filter_by(invoice_idx=invoice_id)
+    logging.debug(products)
+    return render_template('invoice.html', invoice=invoice, products=products)
+
+@app.route('/latest_invoice/')
+def latest_invoice():
+    invoice = Invoice.query.order_by(Invoice.idx.desc()).first()
+    return render_template('invoice.html', invoice=invoice, products=invoice.invoice_products)
