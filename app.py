@@ -110,6 +110,9 @@ def edit(product_id):
 
     return render_template('edit.html', product=product)
 
+@app.route('/about/')
+def about():
+    return render_template('about.html')
 
 @app.post('/<int:product_id>/delete/')
 def delete(product_id):
