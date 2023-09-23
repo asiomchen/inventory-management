@@ -248,3 +248,8 @@ def submit_invoice(invoice_id):
     db.session.merge(invoice)
     db.session.commit()
     return redirect(url_for('index'))
+
+@app.route('/invoices/')
+def invoices():
+    invoices = Invoice.query.all()
+    return render_template('invoices.html', invoices=invoices)

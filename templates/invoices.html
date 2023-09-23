@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h1 class="title display-4 text-center">{% block title %} Invoices {% endblock %}</h1>
+    <hr>
+    <div class="row">
+        <ul>
+            {% for invoice in invoices %}
+                <li>
+                    <a href="{{ url_for('invoice', invoice_id=invoice.idx) }}">Invoice #{{ invoice.idx }}</a> ({{ invoice.date.strftime('%Y-%m-%d') }}):
+                    Total Profit: {{ invoice.total_profit }}$
+                    Total Weight: {{ '%0.2f'|format(invoice.total_weight) }}kg
+                    Status: {{ invoice.status }}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}
