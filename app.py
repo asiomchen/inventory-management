@@ -2,12 +2,14 @@ import os
 from pydoc import describe
 import re
 import stat
-from turtle import title
+import random
+from turtle import pu, title
 from flask import Flask, render_template, request, url_for, redirect, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 import logging
 from sqlalchemy.sql import func
+from utils import generate_random_image
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -40,6 +42,7 @@ class InvoiceProduct(db.Model):
     invoice_idx = db.Column(db.Integer, db.ForeignKey('invoice.idx'))
     product_idx = db.Column(db.Integer, db.ForeignKey('product.idx'))
     product = db.relationship('Product', backref='invoice', lazy=True)
+    product_title = db.Column(db.Text, nullable=False)
     quantity = db.Column(db.Integer)
     weight = db.Column(db.Float)
     purchase_price = db.Column(db.Float)
@@ -66,15 +69,20 @@ class Invoice(db.Model):
 with app.app_context():
     db.create_all()
     if not Product.query.all():
-        product = Product(title='Product 1', 
-                          description='Product 1 description', 
-                          quantity=10, 
-                          photo='No photo', 
-                          weight=1.0, 
-                          purchase_price=1.0, 
-                          sale_price=2.0, 
-                          profit=1.0)
-        db.session.add(product)
+        for i in range(10):
+            weight = round(random.random(), 2)
+            purchase_price = random.randint(1, 100)
+            sale_price = purchase_price + random.randint(1, 50)
+            profit = sale_price - purchase_price
+            product = Product(title=f'Product {i}', 
+                              description=f'Description {i}', 
+                              quantity=i, 
+                              photo=generate_random_image(f'uploads/test_product_{i}.png'),
+                              weight=weight,
+                              purchase_price=purchase_price,
+                              sale_price=sale_price,
+                              profit=profit)
+            db.session.add(product)
         db.session.commit()
 
 
@@ -180,6 +188,7 @@ def add2invoice(product_id):
     purchase_price = product.purchase_price * quantity
     sale_price = product.sale_price * quantity
     profit = sale_price - purchase_price
+    product_title = product.title
     latest_invoice = Invoice.query.order_by(Invoice.idx.desc()).first()
     if latest_invoice is None:
         invoice_id = 1
@@ -187,12 +196,13 @@ def add2invoice(product_id):
         latest_invoice_id = latest_invoice.idx
         if latest_invoice.status == 'closed':
             invoice_id = latest_invoice_id + 1
-        if latest_invoice.status == 'open':
+        elif latest_invoice.status == 'open':
             invoice_id = latest_invoice_id
         else:
-            raise Exception('Invoice status is not open or closed')
+            raise Exception('Invoice status is not open or closed, it is {}'.format(latest_invoice.status))
     invoice_product = InvoiceProduct(invoice_idx=invoice_id,
                                         product_idx=product_id,
+                                        product_title=product_title,
                                         quantity=quantity,
                                         weight=weight,
                                         purchase_price=purchase_price,
@@ -229,4 +239,12 @@ def invoice(invoice_id):
 @app.route('/latest_invoice/')
 def latest_invoice():
     invoice = Invoice.query.order_by(Invoice.idx.desc()).first()
-    return render_template('invoice.html', invoice=invoice, products=invoice.invoice_products)
+    return redirect(url_for('invoice', invoice_id=invoice.idx))
+
+@app.route('/submit_invoice/<int:invoice_id>/')
+def submit_invoice(invoice_id):
+    invoice = Invoice.query.get_or_404(invoice_id)
+    invoice.status = 'closed'
+    db.session.merge(invoice)
+    db.session.commit()
+    return redirect(url_for('index'))
