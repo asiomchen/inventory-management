@@ -2,147 +2,49 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %} {% endblock %} - Inventory</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap5.css">
-    <style>
-        .content {
-            margin: 5px;
-            width: 100%;
-            display: flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-        }
-
-        /* Style the product container */
-.product {
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin: 10px;
-    max-width: 400px; /* Adjust the maximum width as needed */
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.product b {
-    font-size: 18px;
-    color: #333;
-}
-
-/* Style the product name and make it a link */
-.product .name a {
-    text-decoration: none;
-    color: #007bff;
-    font-weight: bold;
-}
-
-/* Style the product photo or "No photo" message */
-.product p:nth-child(3) {
-    font-style: italic;
-    color: #888;
-}
-
-/* Style the product description */
-.product p:nth-child(4) {
-    color: #333;
-}
-
-/* Style the product details (Weight, Purchase price, Sale price, etc.) */
-.product p:nth-child(n+5) {
-    color: #777;
-    margin: 5px 0;
-}
-
-/* Style the description section */
-.product .description {
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid #ccc;
-}
-
-/* Style the description title */
-.product .description h3 {
-    font-size: 16px;
-    color: #333;
-    margin: 0;
-}
-
-/* Style the description text */
-.product .description p {
-    color: #555;
-    margin-top: 5px;
-}
-
-/* Style the form container */
-form {
-    max-width: 600px; /* Adjust the maximum width as needed */
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* Two equal columns */
-    gap: 20px; /* Adjust the gap between columns */
-    grid-column-gap: 40px; 
-}
-
-/* Style form labels */
-form label {
-    font-weight: bold;
-    color: #333;
-}
-
-/* Style form inputs and textareas */
-form input[type="text"],
-form textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
-    color: #555;
-}
-
-/* Style the submit button */
-
-
-/* Style form paragraphs (form elements) */
-form p {
-    display: flex;
-    flex-direction: column;
-}
-
-        .description {
-            padding: 10px;
-            margin: 5px;
-            background-color: #ffffff;
-            color: #004835;
-        }
-
-        .name a {
-            color: #00a36f;
-            text-decoration: none;
-        }
-
-        nav a {
-            color: #21510c;
-            font-size: 2em;
-            margin-left: 50px;
-            text-decoration: none;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <nav class="navbar navbar-light bg-light">
-        <a href="{{ url_for('index') }}">Inventory</a>
-        <a href="{{ url_for('table') }}">Table view</a>
-        <a href="{{ url_for('create') }}">Create</a>
-        <a href="#">About</a>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('index') }}">Home</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('table') }}">Table view</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('create') }}">Create product</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('latest_invoice') }}">Latest invoice</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('about') }}">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </nav>
     <hr>
     <div class="content">
         {% block content %} {% endblock %}
     </div>
-    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.min.js" integrity="sha384-Rx+T1VzGupg4BHQYs2gCW9It+akI2MM/mndMCy36UVfodzcJcF0GGLxZIzObiEfa" crossorigin="anonymous"></script>
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap5.js"></script>
-    {% block scripts %}{% endblock %}
+    {% block scripts %} {% endblock %}
 </body>
+<footer>
+    <hr>
+    <p class="text-center"> &copy;  <script>document.write(/\d{4}/.exec(Date())[0])</script> by Anton S. </p>
+</footer>
 </html>

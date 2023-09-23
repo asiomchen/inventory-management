@@ -1,54 +1,46 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1 style="width: 100%">
-        {% block title %} Edit {{ product.title }}'s information {% endblock %}'
-    </h1>
-    <form method="post" enctype="multipart/form-data" class="form">
-        <div class="mb-3">
-            <label for="title" class="form-label">Title</label>
-            <input type="text" name="title"
-                   value="{{ product.title }}"
-                   placeholder="Title">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <h1 class="text-center">
+                    {% block title %} Edit {{ product.title }}'s information {% endblock %}
+                </h1>
+                <form method="post" enctype="multipart/form-data" class="form">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" class="form-control" name="title" value="{{ product.title }}" placeholder="Title">
+                    </div>
+                    <div class="mb-3">
+                        <label for="New photo upload" class="form-label">Photo</label>
+                        <input type="file" class="form-control" name="photo" accept="image/*" value='no_photo'>
+                    </div>
+                    <div class="mb-3">
+                        <label for="Weight" class="form-label">Weight</label>
+                        <input type="text" class="form-control" name="weight" value="{{ product.weight }}" placeholder="Weight">
+                    </div>
+                    <div class="mb-3">
+                        <label for="Purchase Price" class="form-label">Purchase Price</label>
+                        <input type="text" class="form-control" name="purchase_price" value="{{ product.purchase_price }}" placeholder="Purchase Price">
+                    </div>
+                    <div class="mb-3">
+                        <label for="Sale Price" class="form-label">Sale Price</label>
+                        <input type="text" class="form-control" name="sale_price" value="{{ product.sale_price }}" placeholder="Sale Price">
+                    </div>
+                    <div class="mb-3">
+                        <label for="Quantity" class="form-label">Quantity</label>
+                        <input type="text" class="form-control" name="quantity" value="{{ product.quantity }}" placeholder="Quantity">
+                    </div>
+                    <div class="mb-3">
+                        <label for="Description" class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="10" placeholder="Description">{{ product.description }}</textarea>
+                    </div>
+                    <div class="mb-3 text-center">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
         </div>
-        <div class="mb-3">
-            <label for="New photo upload">Photo</label>
-            <input type="file" name="photo" class="form-control"
-                   accept="image/*" value='no_photo'>
-        </div>
-        <div class="mb-3">
-            <label for="Weight" class="form-label">Weight</label>
-            <input type="text" name="weight"
-                   value="{{ product.weight }}"
-                   placeholder="Weight">
-        </div>
-        <div class="mb-3">
-            <label for="Purchase Price" class="form-label">Purchase Price</label>
-            <input type="text" name="purchase_price"
-                   value="{{ product.purchase_price }}"
-                   placeholder="Purchase Price">
-        </div>
-        <div class="mb-3">
-            <label for="Sale Price" class="form-label">Sale Price</label>
-            <input type="text" name="sale_price"
-                   value="{{ product.sale_price }}"
-                   placeholder="Sale Price">
-        </div>
-        <div class="mb-3">
-            <label for="Quantity" class="form-label">Quantity</label>
-            <input type="text" name="quantity"
-                   value="{{ product.quantity }}"
-                   placeholder="Quantity">
-        </div>
-        <div class="mb-3">
-            <label for="Description" class="form-label">Description</label>
-            <br>
-            <textarea name="description" rows="10" cols="30"
-                        placeholder="Description">{{ product.description }}</textarea>
-        </div>
-        <div class="mb-3">
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
-    </form>
-
+    </div>
 {% endblock %}

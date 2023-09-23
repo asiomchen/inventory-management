@@ -1,52 +1,46 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1 style="width: 100%">{% block title %} Add a product {% endblock %}</h1>
-    <form method="post" enctype="multipart/form-data" class="form">
-        <p>
-            <label for="Title">Title</label>
-            <input type="text" name="title"
-                   placeholder="Title">
-            </input>
-        </p>
-        <p>
-            <label for="Photo upload" >Photo</label>
-            <input type="file" name="photo"
-                   accept="image/*">
-            </input>
-        </p>
-        <p>
-            <label for="Weight">Weight</label>
-            <input type="text" name="weight"
-                   placeholder="Weight">
-            </input>
-        </p>
-        <p>
-            <label for="Purchase Price">Purchase Price</label>
-            <input type="text" name="purchase_price"
-                   placeholder="Purchase Price">
-            </input>
-        </p>
-        <p>
-            <label for="Sale Price">Sale Price</label>
-            <input type="text" name="sale_price"
-                   placeholder="Sale Price">
-            </input>
-        </p>
-        <p>
-            <label for="Quantity">Quantity</label>
-            <input type="text" name="quantity"
-                   placeholder="Quantity">
-            </input>
-        </p>
-        <p>
-            <label for="Description">Description</label>
-            <br>
-            <textarea name="description" rows="10" cols="30"
-                      placeholder="Description"></textarea>
-        </p>
-        <p>
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </p>
-    </form>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h1 style="width: 100%">{% block title %} Add a product {% endblock %}</h1>
+            <form method="post" enctype="multipart/form-data" class="form">
+                <div class="mb-3">
+                    <label for="Title" class="form-label">Title</label>
+                    <input type="text" class="form-control" name="title" placeholder="Title">
+                </div>
+                <div class="mb-3">
+                    <label for="Photo upload" class="form-label">Photo</label>
+                    <input type="file" class="form-control" name="photo" accept="image/*">
+                </div>
+                <div class="mb-3">
+                    <label for="Weight" class="form-label">Weight</label>
+                    <input type="text" class="form-control" name="weight" placeholder="Weight">
+                </div>
+                <div class="mb-3">
+                    <label for="Purchase Price" class="form-label">Purchase Price</label>
+                    <input type="text" class="form-control" name="purchase_price" placeholder="Purchase Price">
+                </div>
+                <div class="mb-3">
+                    <label for="Sale Price" class="form-label">Sale Price</label>
+                    <input type="text" class="form-control" name="sale_price" placeholder="Sale Price">
+                </div>
+                <div class="mb-3">
+                    <label for="Quantity" class="form-label">Quantity</label>
+                    <input type="text" class="form-control" name="quantity" placeholder="Quantity">
+                </div>
+                <div class="mb-3">
+                    <label for="Description" class="form-label">Description</label>
+                    <textarea class="form-control" name="description" rows="10" placeholder="Description"></textarea>
+                </div>
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">Back</a>
+                </div>
+            </form>
+            <hr>
+        </div>
+    </div>
+</div>
 {% endblock %}
