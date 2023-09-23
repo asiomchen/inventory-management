@@ -29,7 +29,7 @@
         <tbody>
             {% for product in products %}
                 <tr>
-                    <td>{{ product.title }}</td>
+                    <td>{{ product.product_title }}</td>
                     <td>{{ product.weight }}</td>
                     <td>{{ product.purchase_price }}</td>
                     <td>{{ product.sale_price }}</td>
@@ -40,5 +40,20 @@
         </tbody>
     </table>
     </div>
+</div>
+<div class="container align-items-right text-right shadow-lg p-2 mb-2 mt-1 bg-body rounded">
+    <h4 class="text-right">Total profit: {{ invoice.total_profit }} $</h4>
+    <h4 class="text-right">Total weight: {{ '%0.2f'|format(invoice.total_weight) }} kg</h4>
+    
+    {% set status_class = 'bg-success' if invoice.status == 'closed' else 'bg-danger' %}
+    <h4 class="text-right">Status: <span class="badge {{ status_class }}">{{ 'Closed' if invoice.status == 'closed' else 'Open' }}</span></h4>
+    
+    {% if invoice.status != 'closed' %}
+        <a href="{{ url_for('submit_invoice', invoice_id=invoice.idx) }}" class="btn btn-primary">Submit invoice</a>
+    {% endif %}
+</div>
+
+    
+    <a href="{{ url_for('index') }}" class="btn btn-primary">Back to home</a>
 </div>
 {% endblock %}
