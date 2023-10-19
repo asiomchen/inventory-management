@@ -247,9 +247,17 @@ def submit_invoice(invoice_id):
     invoice.status = 'closed'
     db.session.merge(invoice)
     db.session.commit()
+    for product in invoice.invoice_products:
+        update_quantity(product.product_idx, product.quantity)
     return redirect(url_for('index'))
 
 @app.route('/invoices/')
 def invoices():
     invoices = Invoice.query.all()
     return render_template('invoices.html', invoices=invoices)
+
+def update_quantity(product_id, quantity):
+    product = Product.query.get_or_404(product_id)
+    product.quantity -= quantity
+    db.session.merge(product)
+    db.session.commit()
