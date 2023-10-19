@@ -251,6 +251,28 @@ def submit_invoice(invoice_id):
         update_quantity(product.product_idx, product.quantity)
     return redirect(url_for('index'))
 
+@app.route('/invoices/<int:invoice_id>/edit/', methods=('GET', 'POST'))
+def edit_invoice(invoice_id):
+    invoice = Invoice.query.get_or_404(invoice_id)
+    products = InvoiceProduct.query.filter_by(invoice_idx=invoice_id)
+    if request.method == 'POST':
+        for product in products:
+            product.quantity = int(request.form[f'quantity_{product.idx}'])
+            product.weight = product.product.weight * product.quantity
+            product.purchase_price = product.product.purchase_price * product.quantity
+            product.sale_price = product.product.sale_price * product.quantity
+            product.profit = product.sale_price - product.purchase_price
+            db.session.merge(product)
+        invoice.total_weight = sum([product.weight for product in products])
+        invoice.total_purchase_price = sum([product.purchase_price for product in products])
+        invoice.total_sale_price = sum([product.sale_price for product in products])
+        invoice.total_profit = sum([product.profit for product in products])
+        db.session.merge(invoice)
+        db.session.commit()
+        return redirect(url_for('invoice', invoice_id=invoice_id))
+    if request.method == 'GET':
+        return render_template('edit_invoice.html', invoice=invoice, products=products)
+
 @app.route('/invoices/')
 def invoices():
     invoices = Invoice.query.all()
