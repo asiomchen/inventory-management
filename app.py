@@ -60,6 +60,8 @@ class Invoice(db.Model):
     total_purchase_price = db.Column(db.Float)
     total_sale_price = db.Column(db.Float)
     total_profit = db.Column(db.Float)
+    tax_rate = db.Column(db.Float, default=10)
+    customer_price = db.Column(db.Float)
     status = db.Column(db.String(255), default='open')
 
     def __repr__(self):
@@ -222,7 +224,7 @@ def add2invoice(product_id):
             total_weight=weight, 
             total_purchase_price=purchase_price, 
             total_sale_price=sale_price, 
-            total_profit=profit)
+            total_profit=profit, customer_price=sale_price * (1 + 10 / 100))
         db.session.add(invoice)
     else:
         invoice = Invoice.query.get(invoice_id)
@@ -230,6 +232,7 @@ def add2invoice(product_id):
         invoice.total_purchase_price += purchase_price
         invoice.total_sale_price += sale_price
         invoice.total_profit += profit
+        invoice.customer_price = invoice.total_sale_price * (1 + invoice.tax_rate / 100)
         db.session.merge(invoice)
     
 
@@ -277,6 +280,7 @@ def edit_invoice(invoice_id):
         invoice.total_purchase_price = sum([product.purchase_price for product in products])
         invoice.total_sale_price = sum([product.sale_price for product in products])
         invoice.total_profit = sum([product.profit for product in products])
+        invoice.customer_price = invoice.total_sale_price * (1 + invoice.tax_rate / 100)
         db.session.merge(invoice)
         db.session.commit()
         return redirect(url_for('invoice', invoice_id=invoice_id))

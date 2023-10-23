@@ -44,22 +44,14 @@
 <div class="container align-items-right text-right shadow-lg p-2 mb-2 mt-1 bg-body rounded">
     <h4 class="text-right">Total profit: {{ invoice.total_profit }} $</h4>
     <h4 class="text-right">Total weight: {{ '%0.2f'|format(invoice.total_weight) }} kg</h4>
+    <h4 class="text-right">Total gross price: {{ '%0.2f'|format(invoice.total_sale_price) }} $</h4>
+    <h4 class="text-right">Tax rate: {{ invoice.tax_rate }} %</h4>
+    <h4 class="text-right">To pay: {{ '%0.2f'|format(invoice.customer_price) }} $</h4>
     
     {% set status_class = 'bg-success' if invoice.status == 'closed' else 'bg-danger' %}
     <h4 class="text-right">Status: <span class="badge {{ status_class }}">{{ 'Closed' if invoice.status == 'closed' else 'Open' }}</span></h4>
     
     {% if invoice.status != 'closed' %}
-    <div class="input-group mb-3">
-        <select class="custom-select" id="inputGroupSelect02">
-          <option selected> Tax</option>
-          <option value="1">10%</option>
-          <option value="2">Two</option>
-          <option value="3">Three</option>
-        </select>
-        <div class="input-group-append">
-          <label class="input-group-text" for="inputGroupSelect02">Options</label>
-        </div>
-      </div>
         <a href="{{ url_for('submit_invoice', invoice_id=invoice.idx) }}" class="btn btn-primary">Submit invoice</a>
     {% endif %}
 </div>
