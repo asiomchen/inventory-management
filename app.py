@@ -297,3 +297,13 @@ def update_quantity(product_id, quantity):
     product.quantity -= quantity
     db.session.merge(product)
     db.session.commit()
+
+@app.route('/change_tax_rate/', methods=['POST'])
+def change_invoice_tax_rate():
+    invoice_id = int(request.form['invoice_id'])
+    invoice = Invoice.query.get_or_404(invoice_id)
+    invoice.tax_rate = float(request.form['tax_rate'])
+    invoice.customer_price = invoice.total_sale_price * (1 + invoice.tax_rate / 100)
+    db.session.merge(invoice)
+    db.session.commit()
+    return redirect(url_for('invoice', invoice_id=invoice_id))
