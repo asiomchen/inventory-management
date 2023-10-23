@@ -200,14 +200,22 @@ def add2invoice(product_id):
             invoice_id = latest_invoice_id
         else:
             raise Exception('Invoice status is not open or closed, it is {}'.format(latest_invoice.status))
-    invoice_product = InvoiceProduct(invoice_idx=invoice_id,
-                                        product_idx=product_id,
-                                        product_title=product_title,
-                                        quantity=quantity,
-                                        weight=weight,
-                                        purchase_price=purchase_price,
-                                        sale_price=sale_price,
-                                        profit=profit)
+    if InvoiceProduct.query.filter_by(invoice_idx=invoice_id, product_idx=product_id).first():
+        invoice_product = InvoiceProduct.query.filter_by(invoice_idx=invoice_id, product_idx=product_id).first()
+        invoice_product.quantity += quantity
+        invoice_product.weight += weight
+        invoice_product.purchase_price += purchase_price
+        invoice_product.sale_price += sale_price
+        invoice_product.profit += profit
+    else:
+        invoice_product = InvoiceProduct(invoice_idx=invoice_id,
+                                            product_idx=product_id,
+                                            product_title=product_title,
+                                            quantity=quantity,
+                                            weight=weight,
+                                            purchase_price=purchase_price,
+                                            sale_price=sale_price,
+                                            profit=profit)
     if Invoice.query.get(invoice_id) is None:
         invoice = Invoice(
             idx=invoice_id,    
@@ -232,7 +240,9 @@ def add2invoice(product_id):
 @app.route('/invoice/<int:invoice_id>/')
 def invoice(invoice_id):
     invoice = Invoice.query.get_or_404(invoice_id)
-    products = InvoiceProduct.query.filter_by(invoice_idx=invoice_id)
+    # select products from invoice by invoice_id and sum quantities weight, purchase_price, sale_price, profit
+    products = InvoiceProduct.query.filter_by(invoice_idx=invoice_id).all()
+
     logging.debug(products)
     return render_template('invoice.html', invoice=invoice, products=products)
 

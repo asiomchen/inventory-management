@@ -49,6 +49,17 @@
     <h4 class="text-right">Status: <span class="badge {{ status_class }}">{{ 'Closed' if invoice.status == 'closed' else 'Open' }}</span></h4>
     
     {% if invoice.status != 'closed' %}
+    <div class="input-group mb-3">
+        <select class="custom-select" id="inputGroupSelect02">
+          <option selected> Tax</option>
+          <option value="1">10%</option>
+          <option value="2">Two</option>
+          <option value="3">Three</option>
+        </select>
+        <div class="input-group-append">
+          <label class="input-group-text" for="inputGroupSelect02">Options</label>
+        </div>
+      </div>
         <a href="{{ url_for('submit_invoice', invoice_id=invoice.idx) }}" class="btn btn-primary">Submit invoice</a>
     {% endif %}
 </div>
