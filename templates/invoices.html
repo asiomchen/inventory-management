@@ -19,7 +19,7 @@
                 {% set status_class = 'bg-success' if invoice.status == 'closed' else 'bg-danger' %}
                     <tr>
                         <td>
-                            <a href="{{ url_for('invoice', invoice_id=invoice.idx) }}">Invoice #{{ invoice.idx }}</a>
+                            <a href="{{ url_for('main.invoice', invoice_id=invoice.idx) }}">Invoice #{{ invoice.idx }}</a>
                         </td>
                         <td>{{ invoice.date.strftime('%Y-%m-%d') }}</td>
                         <td>{{ invoice.total_profit }}$</td>

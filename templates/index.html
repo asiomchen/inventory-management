@@ -9,7 +9,7 @@
         <div class="col-md-3 mb-3">
             <div class="card-wrapper">
                 <div class="card shadow-lg rounded">
-                    <img src="{{ url_for('uploaded_file', filename=product.photo)}}" class="card-img-top" alt="photo">
+                    <img src="{{ url_for('main.uploaded_file', filename=product.photo)}}" class="card-img-top" alt="photo">
                     <div class="card-body">
                         <h5 class="card-title">{{ product.title }}</h5>
                         <p class="card-text">
@@ -26,7 +26,7 @@
                             <li class="list-group-item">Profit: ${{ product.profit }}</li>
                         </ul>
                         <div class="text-center mt-3">
-                            <a href="{{ url_for('product', product_id=product.idx)}}" class="btn btn-primary">Details</a>
+                            <a href="{{ url_for('main.product', product_id=product.idx)}}" class="btn btn-primary">Details</a>
                         </div>
                     </div>
                 </div>

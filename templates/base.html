@@ -11,26 +11,26 @@
 <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('index') }}">Home</a>
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">Home</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('table') }}">Table view</a>
+                        <a class="nav-link" href="{{ url_for('main.table') }}">Table view</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('create') }}">Create product</a>
+                        <a class="nav-link" href="{{ url_for('main.create') }}">Create product</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('invoices') }}">All invoices</a>
+                        <a class="nav-link" href="{{ url_for('main.invoices') }}">All invoices</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('latest_invoice') }}">Latest invoice</a>
+                        <a class="nav-link" href="{{ url_for('main.latest_invoice') }}">Latest invoice</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('about') }}">About</a>
+                        <a class="nav-link" href="{{ url_for('main.about') }}">About</a>
                     </li>
                 </ul>
             </div>

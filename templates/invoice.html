@@ -52,11 +52,11 @@
     <h4 class="text-right">Status: <span class="badge {{ status_class }}">{{ 'Closed' if invoice.status == 'closed' else 'Open' }}</span></h4>
     
     {% if invoice.status != 'closed' %}
-        <a href="{{ url_for('submit_invoice', invoice_id=invoice.idx) }}" class="btn btn-primary">Submit invoice</a>
+        <a href="{{ url_for('main.submit_invoice', invoice_id=invoice.idx) }}" class="btn btn-primary">Submit invoice</a>
     {% endif %}
 </div>
 
-    <a href="{{ url_for('edit_invoice', invoice_id=invoice.idx) }}" class="btn btn-primary">Edit invoice</a>
-    <a href="{{ url_for('index') }}" class="btn btn-primary">Back to home</a>
+    <a href="{{ url_for('main.edit_invoice', invoice_id=invoice.idx) }}" class="btn btn-primary">Edit invoice</a>
+    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Back to home</a>
 </div>
 {% endblock %}
