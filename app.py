@@ -1,23 +1,25 @@
 import os
 from pydoc import describe
-import re
-import stat
+
 import random
-from turtle import pu, title
-from flask import Flask, render_template, request, url_for, redirect, send_from_directory
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask import Flask, render_template, request, url_for, redirect, send_from_directory , flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
+from functools import wraps
 import logging
 from sqlalchemy.sql import func
 from utils import generate_random_image
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-
+login_manager = LoginManager()
 app = Flask(__name__)
+app.config['SECRET_KEY'] = "dev"
 app.config['SQLALCHEMY_DATABASE_URI'] =\
         'sqlite:///' + os.path.join(basedir, 'database.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+#app.config["MAIN_PASSWORD"] = generate_password_hash(os.environ['MAIN_PASSWORD'])
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 db = SQLAlchemy(app)
@@ -67,6 +69,14 @@ class Invoice(db.Model):
     def __repr__(self):
         return '<Invoice %r>' % self.idx
     
+class User(db.Model):
+    idx = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(255), nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+
+    def __repr__(self):
+        return '<User %r>' % self.username
+    
 #init database on first run
 with app.app_context():
     db.create_all()
@@ -85,8 +95,34 @@ with app.app_context():
                               sale_price=sale_price,
                               profit=profit)
             db.session.add(product)
-        db.session.commit()
+            db.session.commit()
 
+# @app.route('/login', methods=['GET', 'POST'])
+# def login():
+#     if not app.config['LOG_ENABLED']:
+#         flash('Too many unsuccessful login attempts. Please try again in {} hours.'.format((app.config['ALLOW_LOGGING_TIME'] - datetime.datetime.now()).seconds // 3600))
+#     elif request.method == 'POST':
+#         if check_password_hash(app.config["MAIN_PASSWORD"], request.form['password']):
+#             # add logging cookie
+
+#             flash('You were successfully logged in', 'success')
+#         else:
+#             app.config['UNSUCCESSFUL_LOGIN_ATTEMPTS'] += 1
+#             flash('Incorrect password. You have {} attempts left.'.format(app.config['MAX_UNSUCCESSFUL_LOGIN_ATTEMPTS'] - app.config['UNSUCCESSFUL_LOGIN_ATTEMPTS']))
+#             if app.config['UNSUCCESSFUL_LOGIN_ATTEMPTS'] >= app.config['MAX_UNSUCCESSFUL_LOGIN_ATTEMPTS']:
+#                 app.config['UNSUCCESSFUL_LOGIN_ATTEMPTS'] = 0
+#                 app.config['LOG_ENABLED'] = False
+#                 app.config['ALLOW_LOGGING_TIME'] = datetime.datetime.now() + datetime.timedelta(days=1)
+#                 flash('Too many unsuccessful login attempts. Please try again tomorrow.')
+#     return render_template('login.html')
+
+
+# @app.route('/change-password', methods=['GET', 'POST'])
+# def change_password():
+#     if request.method == 'POST':
+#         pass
+#     else:
+#         return render_template('change-password.html')
 
 @app.route('/')
 def index():
