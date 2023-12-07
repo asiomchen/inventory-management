@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
+from flask_login import UserMixin
 
 db = SQLAlchemy()
 
@@ -48,10 +49,12 @@ class Invoice(db.Model):
     def __repr__(self):
         return '<Invoice %r>' % self.idx
     
-class User(db.Model):
+class User(UserMixin, db.Model):
     idx = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(255), nullable=False)
     password = db.Column(db.String(255), nullable=False)
+    def get_id(self):
+        return self.idx
 
     def __repr__(self):
         return '<User %r>' % self.username

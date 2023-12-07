@@ -1,6 +1,7 @@
 import os
 from flask import render_template, request, url_for, redirect, send_from_directory, Blueprint, current_app
 from werkzeug.utils import secure_filename
+from flask_login import login_required
 import logging
 from data import Product, InvoiceProduct, Invoice, User, db
 
@@ -8,22 +9,26 @@ main = Blueprint('main', __name__)
 
 
 @main.route('/')
+@login_required
 def index():
     products = Product.query.all()
     return render_template('index.html', products=products)
     
 
 @main.route('/<int:product_id>/')
+@login_required
 def product(product_id):
     product = Product.query.get_or_404(product_id)
     return render_template('main.product.html', product=product)
 
 @main.route('/uploads/<filename>')
+@login_required
 def uploaded_file(filename):
     return send_from_directory(current_app.config['UPLOAD_FOLDER'],
                                filename)
 
 @main.route('/create/', methods=('GET', 'POST'))
+@login_required
 def create():
     if request.method == 'POST':
         title = request.form['title']
@@ -57,6 +62,7 @@ def create():
     return render_template('create.html')
 
 @main.route('/<int:product_id>/edit/', methods=('GET', 'POST'))
+@login_required
 def edit(product_id):
     product = Product.query.get_or_404(product_id)
 
@@ -86,10 +92,12 @@ def edit(product_id):
     return render_template('edit.html', product=product)
 
 @main.route('/about/')
+@login_required
 def about():
     return render_template('about.html')
 
 @main.post('/<int:product_id>/delete/')
+@login_required
 def delete(product_id):
     product = Product.query.get_or_404(product_id)
     db.session.delete(product)
@@ -97,11 +105,13 @@ def delete(product_id):
     return redirect(url_for('main.index'))
 
 @main.route('/table/')
+@login_required
 def table():
     products = Product.query.all()
     return render_template('table.html', products=products)
 
 @main.route('/add2invoice/<int:product_id>/', methods=('POST',))
+@login_required
 def add2invoice(product_id):
     product = Product.query.get_or_404(product_id)
     quantity = int(request.form['quantity'])
@@ -160,6 +170,7 @@ def add2invoice(product_id):
     return redirect(url_for('main.table'))
 
 @main.route('/invoice/<int:invoice_id>/')
+@login_required
 def invoice(invoice_id):
     invoice = Invoice.query.get_or_404(invoice_id)
     # select products from invoice by invoice_id and sum quantities weight, purchase_price, sale_price, profit
@@ -169,11 +180,13 @@ def invoice(invoice_id):
     return render_template('invoice.html', invoice=invoice, products=products)
 
 @main.route('/latest_invoice/')
+@login_required
 def latest_invoice():
     invoice = Invoice.query.order_by(Invoice.idx.desc()).first()
     return redirect(url_for('main.invoice', invoice_id=invoice.idx))
 
 @main.route('/submit_invoice/<int:invoice_id>/')
+@login_required
 def submit_invoice(invoice_id):
     invoice = Invoice.query.get_or_404(invoice_id)
     invoice.status = 'closed'
@@ -184,6 +197,7 @@ def submit_invoice(invoice_id):
     return redirect(url_for('main.index'))
 
 @main.route('/invoices/<int:invoice_id>/edit/', methods=('GET', 'POST'))
+@login_required
 def edit_invoice(invoice_id):
     invoice = Invoice.query.get_or_404(invoice_id)
     products = InvoiceProduct.query.filter_by(invoice_idx=invoice_id)
@@ -207,6 +221,7 @@ def edit_invoice(invoice_id):
         return render_template('edit_invoice.html', invoice=invoice, products=products)
 
 @main.route('/invoices/')
+@login_required
 def invoices():
     invoices = Invoice.query.all()
     return render_template('invoices.html', invoices=invoices)
@@ -218,6 +233,7 @@ def update_quantity(product_id, quantity):
     db.session.commit()
 
 @main.route('/change_tax_rate/', methods=['POST'])
+@login_required
 def change_invoice_tax_rate():
     invoice_id = int(request.form['invoice_id'])
     invoice = Invoice.query.get_or_404(invoice_id)
