@@ -7,3 +7,4 @@ randimage==1.2
 SQLAlchemy==2.0.20
 Werkzeug==2.3.7
 gunicorn
+dotenv
