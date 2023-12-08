@@ -5,14 +5,6 @@
     <div class="card shadow-lg rounded w-50 h-50 aspect-ratio-1x1">
         <div class="card-body text-center">
             <h3 class="card-title">Login</h3>
-            {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-            {%set alert_class = 'alert-success' if messages[0][0] == 'success' else 'alert-danger' %}
-                <div class="alert alert-dismissible {{ alert_class }}">
-                    {{ messages[0][1] }}
-                </div>
-            {% endif %}
-            {% endwith %}
             <form method="POST" action="/login">
                 <div class="mb-3 mt-3">
                     <input type="password" class="form-control" name="password" placeholder="Your Password">
