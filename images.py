@@ -15,7 +15,8 @@ def upload_image(image_path) -> Tuple[str, str]:
             )
     secure_url = upload_result["secure_url"]
     public_id = upload_result["public_id"]
-    return secure_url, public_id
+    optimized_url = cloudinary.utils.cloudinary_url(public_id, fetch_format="auto", quality="auto")[0]
+    return optimized_url, public_id
 
 def delete_image(public_id):
     cloudinary.uploader.destroy(public_id)

@@ -1,9 +1,10 @@
 import os
-from flask import render_template, request, url_for, redirect, send_from_directory, Blueprint, current_app
+from flask import render_template, request, url_for, redirect, send_from_directory, Blueprint, current_app, flash
 from werkzeug.utils import secure_filename
 from flask_login import login_required
 import logging
-from data import Product, InvoiceProduct, Invoice, User, db
+from data import Product, InvoiceProduct, Invoice, User, Image, db
+from images import upload_image, delete_image
 
 main = Blueprint('main', __name__)
 
@@ -19,7 +20,7 @@ def index():
 @login_required
 def product(product_id):
     product = Product.query.get_or_404(product_id)
-    return render_template('main.product.html', product=product)
+    return render_template('product.html', product=product)
 
 @main.route('/uploads/<filename>')
 @login_required
@@ -43,14 +44,20 @@ def create():
         if photo:
             filename = secure_filename(photo.filename)
             photo.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
-            photo = filename
+            url, public_id = upload_image(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+            image = Image(url=url, public_id=public_id)
+            db.session.add(image)
+            db.session.commit()
+            image = Image.query.filter_by(public_id=public_id).first()
+            photo = image
+            os.remove(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
         else:
             photo = 'No photo'
 
         product = Product(title=title, 
                           description=description, 
                           quantity=quantity, 
-                          photo=photo, 
+                          photo_idx=photo.idx if photo != 'No photo' else None,
                           weight=weight, 
                           purchase_price=purchase_price, 
                           sale_price=sale_price, 
@@ -183,6 +190,9 @@ def invoice(invoice_id):
 @login_required
 def latest_invoice():
     invoice = Invoice.query.order_by(Invoice.idx.desc()).first()
+    if invoice is None:
+        flash('No invoices yet, please create one', 'info')
+        return redirect(url_for('main.index'))
     return redirect(url_for('main.invoice', invoice_id=invoice.idx))
 
 @main.route('/submit_invoice/<int:invoice_id>/')
