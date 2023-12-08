@@ -4,11 +4,20 @@ from flask_login import UserMixin
 
 db = SQLAlchemy()
 
+class Image(db.Model):
+    idx = db.Column(db.Integer, primary_key=True)
+    url = db.Column(db.String(255))
+    public_id = db.Column(db.String(255))
+    
+    def __repr__(self):
+        return '<Image %r>' % self.idx
+
 class Product(db.Model):
     idx = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Text, nullable=False)
     description = db.Column(db.Text)
-    photo = db.Column(db.String(255))
+    photo_idx = db.Column(db.Integer, db.ForeignKey('image.idx'))
+    photo = db.relationship('Image', backref='product', lazy=True)
     quantity = db.Column(db.Integer)
     weight = db.Column(db.Float)
     purchase_price = db.Column(db.Float)

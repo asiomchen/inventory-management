@@ -1,12 +1,24 @@
 import os
 import random
+from venv import logger
 from flask import Flask, render_template, request, url_for, redirect, send_from_directory , flash
 from flask_login import LoginManager
 from werkzeug.security import generate_password_hash
 from utils import generate_random_image
-from data import db, Product, InvoiceProduct, Invoice, User
+from data import db, Product, InvoiceProduct, Invoice, User, Image
+from dotenv import load_dotenv
+load_dotenv()
 from main import main
+from images import upload_image, delete_image
 from auth import auth as auth_blueprint
+import logging
+import sys
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+stream_handler = logging.StreamHandler(sys.stdout)
+logger.addHandler(stream_handler)
+
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
@@ -34,19 +46,27 @@ def load_user(user_id):
 with app.app_context():
     db.create_all()
     if not Product.query.all():
-        for i in range(10):
+        for i in range(2):
             weight = round(random.random(), 2)
             purchase_price = random.randint(1, 100)
             sale_price = purchase_price + random.randint(1, 50)
             profit = sale_price - purchase_price
+            photo = generate_random_image(f'uploads/test_product_{i}.png')
+            secure_url, public_id = upload_image(f'uploads/test_product_{i}.png')
+            image = Image(url=secure_url, public_id=public_id)
+            db.session.add(image)
+            db.session.commit()
+            image = Image.query.filter_by(public_id=public_id).first()
             product = Product(title=f'Product {i}', 
                               description=f'Description {i}', 
                               quantity=i, 
-                              photo=generate_random_image(f'uploads/test_product_{i}.png'),
+                              photo_idx = image.idx,
                               weight=weight,
                               purchase_price=purchase_price,
                               sale_price=sale_price,
                               profit=profit)
+            logging.info(f"image: {image}"
+                            f"product: {product}")
             db.session.add(product)
             db.session.commit()
     if not User.query.all():
