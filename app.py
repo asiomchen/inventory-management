@@ -13,7 +13,8 @@ from images import upload_image, delete_image
 from auth import auth as auth_blueprint
 import logging
 import sys
-
+import pymysql
+pymysql.install_as_MySQLdb()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 stream_handler = logging.StreamHandler(sys.stdout)
