@@ -1,4 +1,5 @@
 import os
+import re
 from flask import render_template, request, url_for, redirect, send_from_directory, Blueprint, current_app, flash
 from werkzeug.utils import secure_filename
 from flask_login import login_required
@@ -170,10 +171,12 @@ def add2invoice(product_id):
         invoice.total_profit += profit
         invoice.customer_price = invoice.total_sale_price * (1 + invoice.tax_rate / 100)
         db.session.merge(invoice)
-    
+    product.quantity -= quantity
+    db.session.merge(product)
 
     db.session.add(invoice_product)
     db.session.commit()
+    flash(f"{product.title} added to invoice #{invoice_id}", 'success')
     return redirect(url_for('main.table'))
 
 @main.route('/invoice/<int:invoice_id>/')
@@ -204,6 +207,7 @@ def submit_invoice(invoice_id):
     db.session.commit()
     for product in invoice.invoice_products:
         update_quantity(product.product_idx, product.quantity)
+    flash(f'Invoice #{invoice_id} was submitted successfully', 'success')
     return redirect(url_for('main.index'))
 
 @main.route('/invoices/<int:invoice_id>/edit/', methods=('GET', 'POST'))
@@ -212,13 +216,26 @@ def edit_invoice(invoice_id):
     invoice = Invoice.query.get_or_404(invoice_id)
     products = InvoiceProduct.query.filter_by(invoice_idx=invoice_id)
     if request.method == 'POST':
-        for product in products:
-            product.quantity = int(request.form[f'quantity_{product.idx}'])
-            product.weight = product.product.weight * product.quantity
-            product.purchase_price = product.product.purchase_price * product.quantity
-            product.sale_price = product.product.sale_price * product.quantity
-            product.profit = product.sale_price - product.purchase_price
-            db.session.merge(product)
+        changed_product_id = int(request.form['product_id'])
+        changed_product = InvoiceProduct.query.filter_by(product_idx=changed_product_id).first()
+        original_product = Product.query.get_or_404(changed_product.product_idx)
+        requested_quantity = int(request.form[f'quantity'])
+        if requested_quantity > original_product.quantity + changed_product.quantity:
+            flash(f'Not enough {original_product.title} in stock, please enter a smaller quantity', 'danger')
+            return redirect(url_for('main.edit_invoice', invoice_id=invoice_id))
+        else:
+            original_product.quantity += changed_product.quantity - requested_quantity
+            changed_product.quantity = requested_quantity
+            changed_product.weight = changed_product.product.weight * changed_product.quantity
+            changed_product.purchase_price = changed_product.product.purchase_price * changed_product.quantity
+            changed_product.sale_price = changed_product.product.sale_price * changed_product.quantity
+            changed_product.profit = changed_product.sale_price - changed_product.purchase_price
+            db.session.merge(changed_product)
+            if changed_product.quantity == 0:
+                db.session.delete(changed_product)
+            products = InvoiceProduct.query.filter_by(invoice_idx=invoice_id)
+            
+                
         invoice.total_weight = sum([product.weight for product in products])
         invoice.total_purchase_price = sum([product.purchase_price for product in products])
         invoice.total_sale_price = sum([product.sale_price for product in products])
@@ -226,6 +243,7 @@ def edit_invoice(invoice_id):
         invoice.customer_price = invoice.total_sale_price * (1 + invoice.tax_rate / 100)
         db.session.merge(invoice)
         db.session.commit()
+        flash('Invoice updated', 'success')
         return redirect(url_for('main.invoice', invoice_id=invoice_id))
     if request.method == 'GET':
         return render_template('edit_invoice.html', invoice=invoice, products=products)

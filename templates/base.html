@@ -38,6 +38,17 @@
     </nav>
     <hr>
     <div class="content">
+        <div class="container mt-4">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} text-center" >
+                 {{ message }}
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+            </div>
         {% block content %} {% endblock %}
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
