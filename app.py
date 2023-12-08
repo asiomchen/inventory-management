@@ -30,7 +30,7 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config["MAIN_PASSWORD"] = generate_password_hash(os.environ['MAIN_PASSWORD'])
-    UPLOAD_FOLDER = 'uploads'
+    UPLOAD_FOLDER = os.path.join(basedir)
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
     app.register_blueprint(main)
