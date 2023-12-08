@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h1 class="title display-4 text-center">{% block title %} Invoices {% endblock %}</h1>
+    <hr>
+    <div class="row">
+        <table id="data" class="table table-striped table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Invoice</th>
+                    <th>Date</th>
+                    <th>Total Profit</th>
+                    <th>Total Weight</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for invoice in invoices %}
+                {% set status_class = 'bg-success' if invoice.status == 'closed' else 'bg-danger' %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('main.invoice', invoice_id=invoice.idx) }}">Invoice #{{ invoice.idx }}</a>
+                        </td>
+                        <td>{{ invoice.date.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ invoice.total_profit }}$</td>
+                        <td>{{ '%0.2f'|format(invoice.total_weight) }}kg</td>
+                        <td><span class="badge {{ status_class }}">{{ 'Closed' if invoice.status == 'closed' else 'Open' }}</span></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        $('#data').DataTable({
+        });
+    });
+</script>
+{% endblock %}

@@ -9,7 +9,7 @@
     <div class="row mt-4">
         <div class="col-md-6">
             {% if product.photo %}
-            <img src="{{ url_for('uploaded_file', filename=product.photo)}}" alt="photo" class="img-fluid rounded" style="max-width: 100%;" height="300">
+            <img src="{{ product.photo.url }}" alt="photo" class="img-fluid rounded" style="max-width: 100%;" height="300">
             {% else %}
             <div class="alert alert-info">No photo available</div>
             {% endif %}
@@ -38,10 +38,10 @@
                     <td>{{ product.profit }} $</td>
                 </tr>
             </table>
-            <form method="GET" action="{{ url_for('edit', product_id=product.idx) }}">
+            <form method="GET" action="{{ url_for('main.edit', product_id=product.idx) }}">
                 <input type="submit" class="btn btn-primary btn-custom" value="Edit product" onclick="return confirm('Are you sure you want to edit this entry?')">
             </form>
-            <form method="POST" action="{{ url_for('delete', product_id=product.idx) }}">
+            <form method="POST" action="{{ url_for('main.delete', product_id=product.idx) }}">
                 <input type="submit" class="btn btn-danger btn-custom mt-2" value="Delete product" onclick="return confirm('Are you sure you want to delete this entry?')">
             </form>
         </div>
