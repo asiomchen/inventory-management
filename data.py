@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
 from flask_login import UserMixin
 
-product_categories = ['All', 'Kettles','yixing pots', 'Tea Caddy', 'Scoop/Spoon','Ceramics','knife/pick','base','stove', \
+product_categories = ['Kettles','yixing pots', 'Tea Caddy', 'Scoop/Spoon','Ceramics','knife/pick','base','stove', \
                       'wood','lacquer','tea','partnership sales','vintage teas','Miscellaneous']
 db = SQLAlchemy()
 

@@ -3,6 +3,9 @@
 {% block content %}
 <div class="container">
     <h1 class="title display-4 text-center">{% block title %} Products {% endblock %}</h1>
+    {% if category_name is not none %}
+        <h2 class="title display-6 text-center">Category: {{ category_name }}</h2>
+    {% endif %}
     <hr>
     <div class="row">
         {% for product in products %}
