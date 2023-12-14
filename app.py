@@ -60,8 +60,8 @@ def create_app():
                 purchase_price = random.randint(1, 100)
                 sale_price = purchase_price + random.randint(1, 50)
                 profit = sale_price - purchase_price
-                photo = generate_random_image(f'uploads/test_product_{i}.png')
-                secure_url, public_id = upload_image(f'uploads/test_product_{i}.png')
+                photo = generate_random_image(f'{UPLOAD_FOLDER}/test_product_{i}.png')
+                secure_url, public_id = upload_image(photo)
                 image = Image(url=secure_url, public_id=public_id)
                 db.session.add(image)
                 db.session.commit()
