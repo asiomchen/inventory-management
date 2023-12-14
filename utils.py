@@ -1,4 +1,3 @@
-from numpy import mat
 from randimage import get_random_image
 from matplotlib import image
 import os
