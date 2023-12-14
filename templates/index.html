@@ -14,7 +14,7 @@
                     <img src="{{ deliver_image(product.photo.public_id, 390, 390) }}" class="card-img-top" alt="{{ product.title }}">
                     <div class="card-body d-flex flex-column justify-content-between">
                         <div class="text-center mb-0 mt-auto">
-                            <span class="badge bg-primary">{{ product.category.name }}</span>
+                            <a href="{{ url_for('main.category', category_id=product.category.idx) }}"  class="badge bg-dark">{{ product.category.name }}</a>
                             <h5 class="card-title text-truncate mb-0">{{ product.title }}</h5>
                         </div>
                         <p class="card-text mt-auto">
