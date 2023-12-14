@@ -164,17 +164,11 @@ def add2invoice(product_id):
     sale_price = product.sale_price * quantity
     profit = sale_price - purchase_price
     product_title = product.title
-    latest_invoice = Invoice.query.order_by(Invoice.idx.desc()).first()
-    if latest_invoice is None:
-        invoice_id = 1
-    else:
-        latest_invoice_id = latest_invoice.idx
-        if latest_invoice.status == 'closed':
-            invoice_id = latest_invoice_id + 1
-        elif latest_invoice.status == 'open':
-            invoice_id = latest_invoice_id
-        else:
-            raise Exception('Invoice status is not open or closed, it is {}'.format(latest_invoice.status))
+    active_invoice = Invoice.query.filter_by(is_active=True).filter_by(status='open').first()
+    if not active_invoice:
+        flash('No active open invoices, please create one first', 'danger')
+        return redirect(url_for('main.invoices'))
+    invoice_id = active_invoice.idx
     if InvoiceProduct.query.filter_by(invoice_idx=invoice_id, product_idx=product_id).first():
         invoice_product = InvoiceProduct.query.filter_by(invoice_idx=invoice_id, product_idx=product_id).first()
         invoice_product.quantity += quantity
