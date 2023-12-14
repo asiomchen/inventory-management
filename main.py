@@ -79,7 +79,7 @@ def create():
         db.session.commit()
 
         return redirect(url_for('main.index'))
-    return render_template('create.html')
+    return render_template('create.html', categories=Category.query.all())
 
 @main.route('/<int:product_id>/edit/', methods=('GET', 'POST'))
 @login_required

@@ -10,6 +10,13 @@
                     <label for="Title" class="form-label">Title</label>
                     <input type="text" class="form-control" name="title" placeholder="Title">
                 </div>
+                <div class="mb-3 form-group">
+                    <label for="title" class="form-label">Category</label>
+                    <select class="form-select" name="category">
+                        {% for category in categories %}
+                            <option value="{{ category.name }}">{{ category.name }}</option>
+                        {% endfor %}
+                </div>
                 <div class="mb-3">
                     <label for="Photo upload" class="form-label">Photo</label>
                     <input type="file" class="form-control" name="photo" accept="image/*">
