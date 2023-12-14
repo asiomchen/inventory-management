@@ -9,7 +9,7 @@
     <div class="row mt-4">
         <div class="col-md-6">
             {% if product.photo %}
-            <img src="{{ product.photo.url }}" alt="photo" class="img-fluid rounded" style="max-width: 100%;" height="300">
+            <img src="{{ deliver_image(product.photo.public_id, 400, 400) }}" alt="photo" class="img-fluid rounded" style="max-width: 100%;" height="300">
             {% else %}
             <div class="alert alert-info">No photo available</div>
             {% endif %}
@@ -38,6 +38,15 @@
                     <td>{{ product.profit }} $</td>
                 </tr>
             </table>
+            <form action="{{ url_for('main.add2invoice', product_id=product.idx) }}" method="post">
+                <div class="input-group-text justify-content-center">
+                    <input type="number" name="quantity" value="1" min="1" max="{{ product.quantity }}" class="form-control" style="width: 100px;"/>
+                    <div class="input-group-append justify-content-center">
+                        <button type="submit" class="btn btn-success">Add to Invoice</button>
+                    </div>
+                </div>
+            </form>
+            <br>
             <form method="GET" action="{{ url_for('main.edit', product_id=product.idx) }}">
                 <input type="submit" class="btn btn-primary btn-custom" value="Edit product" onclick="return confirm('Are you sure you want to edit this entry?')">
             </form>

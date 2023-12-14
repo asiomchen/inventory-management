@@ -36,7 +36,7 @@
                 <tr>
                     <td>
                         {% if product.photo != 'No photo' %}
-                            <img src="{{ product.photo.url }}" alt="{{ product.title }}" style="width: 100px; height: 100px;"/>
+                            <img src="{{ deliver_image(product.photo.public_id, 100, 100) }}" alt="{{ product.title }}" style="width: 100px; height: 100px;"/>
                         {% else %}
                             No photo
                         {% endif %}

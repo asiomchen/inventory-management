@@ -9,7 +9,7 @@ from data import db, Product, InvoiceProduct, Invoice, User, Image
 from dotenv import load_dotenv
 load_dotenv()
 from main import main
-from images import upload_image, delete_image
+from images import upload_image, delete_image, deliver_image
 from auth import auth as auth_blueprint
 import logging
 import sys
@@ -35,6 +35,7 @@ def create_app():
 
     app.register_blueprint(main)
     app.register_blueprint(auth_blueprint)
+    app.jinja_env.globals.update(deliver_image=deliver_image)
     db.init_app(app)
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'

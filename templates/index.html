@@ -9,7 +9,7 @@
         <div class="col-md-3 mb-3">
             <div class="card-wrapper">
                 <div class="card shadow-lg rounded">
-                    <img src="{{ product.photo.url }}" class="card-img-top" alt="{{ product.title }}">
+                    <img src="{{ deliver_image(product.photo.public_id, 390, 390) }}" class="card-img-top" alt="{{ product.title }}">
                     <div class="card-body">
                         <h5 class="card-title">{{ product.title }}</h5>
                         <p class="card-text">

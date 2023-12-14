@@ -5,7 +5,7 @@ from werkzeug.utils import secure_filename
 from flask_login import login_required
 import logging
 from data import Product, InvoiceProduct, Invoice, User, Image, db
-from images import upload_image, delete_image
+from images import upload_image, delete_image, deliver_image
 
 main = Blueprint('main', __name__)
 
