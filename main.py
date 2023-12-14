@@ -118,6 +118,42 @@ def table():
     products = Product.query.all()
     return render_template('table.html', products=products)
 
+@main.route(f'/new_invoice/', methods=('POST',))
+@login_required
+def new_invoice():
+    if request.method == 'POST':
+        name = request.form['invoice_name']
+        invoice = Invoice(name=name)
+        current_active_invoice = Invoice.query.filter_by(is_active=True).first()
+        if current_active_invoice:
+            current_active_invoice.is_active = False
+            db.session.merge(current_active_invoice)
+        db.session.add(invoice)
+        db.session.commit()
+        flash(f'New invoice {invoice.name} created', 'success')
+        return redirect(url_for('main.invoices'))
+    return render_template('new_invoice.html')
+
+@main.route('/change_active_status/', methods=('POST',))
+@login_required
+def change_active_status():
+    invoice_id = int(request.form['invoice_id'])
+    invoice = Invoice.query.get_or_404(invoice_id)
+    if invoice.is_active:
+        flash(f'Invoice #{invoice_id} is already active', 'danger')
+        return redirect(url_for('main.invoices'))
+    else:
+        current_active_invoice = Invoice.query.filter_by(is_active=True).first()
+        if current_active_invoice:
+            current_active_invoice.is_active = False
+            db.session.merge(current_active_invoice)
+        invoice.is_active = True
+        db.session.merge(invoice)
+        db.session.commit()
+        flash(f'Invoice #{invoice_id} is now active', 'success')
+        return redirect(url_for('main.invoices'))
+
+
 @main.route('/add2invoice/<int:product_id>/', methods=('POST',))
 @login_required
 def add2invoice(product_id):
