@@ -228,6 +228,15 @@ def latest_invoice():
         return redirect(url_for('main.index'))
     return redirect(url_for('main.invoice', invoice_id=invoice.idx))
 
+@main.route('/active_invoice/')
+@login_required
+def active_invoice():
+    invoice = Invoice.query.filter_by(is_active=True).first()
+    if invoice is None:
+        flash('No active invoices, please create one', 'info')
+        return redirect(url_for('main.index'))
+    return redirect(url_for('main.invoice', invoice_id=invoice.idx))
+
 @main.route('/submit_invoice/<int:invoice_id>/')
 @login_required
 def submit_invoice(invoice_id):
