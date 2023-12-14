@@ -7,38 +7,55 @@
             <h1 style="width: 100%">{% block title %} Add a product {% endblock %}</h1>
             <form method="post" enctype="multipart/form-data" class="form">
                 <div class="mb-3">
-                    <label for="Title" class="form-label">Title</label>
+                    <label for="title" class="form-label">Title</label>
                     <input type="text" class="form-control" name="title" placeholder="Title">
                 </div>
+            
                 <div class="mb-3">
-                    <label for="Photo upload" class="form-label">Photo</label>
+                    <label for="category" class="form-label">Category</label>
+                    <select class="form-select" name="category">
+                        {% for category in categories %}
+                        <option value="{{ category.name }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            
+                <div class="mb-3">
+                    <label for="photo" class="form-label">Photo</label>
                     <input type="file" class="form-control" name="photo" accept="image/*">
                 </div>
+            
                 <div class="mb-3">
-                    <label for="Weight" class="form-label">Weight</label>
+                    <label for="weight" class="form-label">Weight</label>
                     <input type="text" class="form-control" name="weight" placeholder="Weight">
                 </div>
+            
                 <div class="mb-3">
-                    <label for="Purchase Price" class="form-label">Purchase Price</label>
+                    <label for="purchase_price" class="form-label">Purchase Price</label>
                     <input type="text" class="form-control" name="purchase_price" placeholder="Purchase Price">
                 </div>
+            
                 <div class="mb-3">
-                    <label for="Sale Price" class="form-label">Sale Price</label>
+                    <label for="sale_price" class="form-label">Sale Price</label>
                     <input type="text" class="form-control" name="sale_price" placeholder="Sale Price">
                 </div>
+            
                 <div class="mb-3">
-                    <label for="Quantity" class="form-label">Quantity</label>
+                    <label for="quantity" class="form-label">Quantity</label>
                     <input type="text" class="form-control" name="quantity" placeholder="Quantity">
                 </div>
+            
                 <div class="mb-3">
-                    <label for="Description" class="form-label">Description</label>
+                    <label for="description" class="form-label">Description</label>
                     <textarea class="form-control" name="description" rows="10" placeholder="Description"></textarea>
                 </div>
+            
                 <div class="mb-3">
                     <button type="submit" class="btn btn-primary">Submit</button>
-                    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Back</a>
+                    <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Back</a>
                 </div>
             </form>
+            
             <hr>
         </div>
     </div>

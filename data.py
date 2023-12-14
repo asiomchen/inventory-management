@@ -1,7 +1,10 @@
+from os import name
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
 from flask_login import UserMixin
 
+product_categories = ['Kettles','yixing pots', 'Tea Caddy', 'Scoop/Spoon','Ceramics','knife/pick','base','stove', \
+                      'wood','lacquer','tea','partnership sales','vintage teas','Miscellaneous']
 db = SQLAlchemy()
 
 class Image(db.Model):
@@ -12,9 +15,18 @@ class Image(db.Model):
     def __repr__(self):
         return '<Image %r>' % self.idx
 
+class Category(db.Model):
+    idx = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
+    
+    def __repr__(self):
+        return '<Category %r>' % self.name
+
 class Product(db.Model):
     idx = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Text, nullable=False)
+    category_idx = db.Column(db.Integer, db.ForeignKey('category.idx'))
+    category = db.relationship('Category', backref='product', lazy=True)
     description = db.Column(db.Text)
     photo_idx = db.Column(db.Integer, db.ForeignKey('image.idx'))
     photo = db.relationship('Image', backref='product', lazy=True)
@@ -45,15 +57,17 @@ class InvoiceProduct(db.Model):
     
 class Invoice(db.Model):
     idx = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
     date = db.Column(db.DateTime(timezone=True), server_default=func.now())
     invoice_products = db.relationship('InvoiceProduct', backref='invoice', lazy=True)
-    total_weight = db.Column(db.Float)
-    total_purchase_price = db.Column(db.Float)
-    total_sale_price = db.Column(db.Float)
-    total_profit = db.Column(db.Float)
+    total_weight = db.Column(db.Float, default=0)
+    total_purchase_price = db.Column(db.Float, default=0)
+    total_sale_price = db.Column(db.Float, default=0)
+    total_profit = db.Column(db.Float, default=0)
     tax_rate = db.Column(db.Float, default=10)
-    customer_price = db.Column(db.Float)
+    customer_price = db.Column(db.Float, default=0)
     status = db.Column(db.String(255), default='open')
+    is_active = db.Column(db.Boolean, default=True)
 
     def __repr__(self):
         return '<Invoice %r>' % self.idx
@@ -67,3 +81,4 @@ class User(UserMixin, db.Model):
 
     def __repr__(self):
         return '<User %r>' % self.username
+    

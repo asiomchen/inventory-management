@@ -21,5 +21,8 @@ def upload_image(image_path) -> Tuple[str, str]:
 def delete_image(public_id):
     cloudinary.uploader.destroy(public_id)
 
+def deliver_image(public_id, width, height):
+    return cloudinary.utils.cloudinary_url(public_id, width=width, height=height, crop="fill")[0]
+
 if __name__ == "__main__":
     upload_image("uploads/test_product_1.png")
