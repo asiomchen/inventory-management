@@ -5,7 +5,7 @@ from flask import Flask, render_template, request, url_for, redirect, send_from_
 from flask_login import LoginManager
 from werkzeug.security import generate_password_hash
 from utils import generate_random_image
-from data import db, Product, InvoiceProduct, Invoice, User, Image
+from data import db, Product, InvoiceProduct, Invoice, User, Image, Category, product_categories
 from dotenv import load_dotenv
 load_dotenv()
 from main import main
@@ -19,6 +19,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 stream_handler = logging.StreamHandler(sys.stdout)
 logger.addHandler(stream_handler)
+
 
 
 def create_app():
@@ -48,6 +49,11 @@ def create_app():
     #init database on first run
     with app.app_context():
         db.create_all()
+        if not Category.query.all():
+            for category in product_categories:
+                category = Category(name=category)
+                db.session.add(category)
+                db.session.commit()
         if not Product.query.all():
             for i in range(2):
                 weight = round(random.random(), 2)
@@ -62,6 +68,7 @@ def create_app():
                 image = Image.query.filter_by(public_id=public_id).first()
                 product = Product(title=f'Product {i}', 
                                 description=f'Description {i}', 
+                                category_idx=1,
                                 quantity=i, 
                                 photo_idx = image.idx,
                                 weight=weight,
@@ -76,7 +83,6 @@ def create_app():
             user = User(username='admin', password=app.config["MAIN_PASSWORD"])
             db.session.add(user)
             db.session.commit()
-        
     return app
                 
 

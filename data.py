@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
 from flask_login import UserMixin
 
+product_categories = ['All', 'Kettles','yixing pots', 'Tea Caddy', 'Scoop/Spoon','Ceramics','knife/pick','base','stove', \
+                      'wood','lacquer','tea','partnership sales','vintage teas','Miscellaneous']
 db = SQLAlchemy()
 
 class Image(db.Model):
@@ -13,9 +15,18 @@ class Image(db.Model):
     def __repr__(self):
         return '<Image %r>' % self.idx
 
+class Category(db.Model):
+    idx = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
+    
+    def __repr__(self):
+        return '<Category %r>' % self.name
+
 class Product(db.Model):
     idx = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Text, nullable=False)
+    category_idx = db.Column(db.Integer, db.ForeignKey('category.idx'))
+    category = db.relationship('Category', backref='product', lazy=True)
     description = db.Column(db.Text)
     photo_idx = db.Column(db.Integer, db.ForeignKey('image.idx'))
     photo = db.relationship('Image', backref='product', lazy=True)
@@ -70,3 +81,4 @@ class User(UserMixin, db.Model):
 
     def __repr__(self):
         return '<User %r>' % self.username
+    

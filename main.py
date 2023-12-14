@@ -4,7 +4,7 @@ from flask import render_template, request, url_for, redirect, send_from_directo
 from werkzeug.utils import secure_filename
 from flask_login import login_required
 import logging
-from data import Product, InvoiceProduct, Invoice, User, Image, db
+from data import Product, InvoiceProduct, Invoice, User, Image, Category, db
 from images import upload_image, delete_image, deliver_image
 
 main = Blueprint('main', __name__)
@@ -76,6 +76,10 @@ def edit(product_id):
 
     if request.method == 'POST':
         product.title = request.form['title']
+        category_name = request.form['category']
+        category = Category.query.filter_by(name=category_name).first()
+        product.category_idx = category.idx
+
         product.description = request.form['description']
         product.quantity = int(request.form['quantity'])
         product.weight = float(request.form['weight'])
@@ -96,8 +100,9 @@ def edit(product_id):
         db.session.commit()
 
         return redirect(url_for('main.index'))
+    categories = Category.query.all()
 
-    return render_template('edit.html', product=product)
+    return render_template('edit.html', product=product, categories=categories)
 
 @main.route('/about/')
 @login_required
