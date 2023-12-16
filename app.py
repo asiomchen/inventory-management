@@ -37,6 +37,9 @@ def create_app():
     app.register_blueprint(main)
     app.register_blueprint(auth_blueprint)
     app.jinja_env.globals.update(deliver_image=deliver_image)
+    @app.context_processor
+    def inject_categories():
+        return dict(categories=Category.query.all())
     db.init_app(app)
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
