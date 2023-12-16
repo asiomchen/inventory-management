@@ -5,7 +5,7 @@ from flask import Flask
 from flask_login import LoginManager
 from werkzeug.security import generate_password_hash
 from utils import generate_random_image
-from data import db, Product, InvoiceProduct, Invoice, User, Image, Category, product_categories, tax_rates
+from data import db, Product, InvoiceProduct, Invoice, User, Image, Category, product_categories
 from dotenv import load_dotenv
 load_dotenv()
 from main import main
@@ -54,7 +54,7 @@ def create_app():
         db.create_all()
         if not Category.query.all():
             for category in product_categories:
-                tax_rate = 10 if category == "tea" else 8
+                tax_rate = 8 if category == "tea" else 8
                 category = Category(name=category, tax_rate=tax_rate)
                 db.session.add(category)
                 db.session.commit()

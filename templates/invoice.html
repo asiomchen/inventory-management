@@ -11,6 +11,7 @@
     /* Make the table responsive */
     .table-responsive {
         overflow-x: auto;
+        overflow-y: hidden;
     }
 </style>
 <div class="table-container">
@@ -24,6 +25,7 @@
                 <th data-data="sale_price" data-sort="true">Sale price ($)</th>
                 <th data-data="quantity" data-sort="true">Quantity</th>
                 <th data-data="profit" data-sort="true">Profit ($)</th>
+                <th data-data="tax_rate" data-sort="true">Tax rate (%)</th>
             </tr>
         </thead>
         <tbody>
@@ -35,6 +37,7 @@
                     <td>{{ product.sale_price }}</td>
                     <td>{{ product.quantity }}</td>
                     <td>{{ product.profit }}</td>
+                    <td>{{ product.product.category.tax_rate }}</td>
                 </tr>
             {% endfor %}
         </tbody>

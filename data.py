@@ -5,11 +5,8 @@ from flask_login import UserMixin
 
 product_categories = ['Kettles','yixing pots', 'Tea Caddy', 'Scoop/Spoon','Ceramics','knife/pick','base','stove', \
                       'wood','lacquer','tea','partnership sales','vintage teas','Miscellaneous']
-tax_rates = {['Kettles','yixing pots', 'Tea Caddy', 'Scoop/Spoon','Ceramics','knife/pick','base','stove', \
-                      'wood','lacquer','partnership sales','vintage teas','Miscellaneous'] : 10,
-                ['tea'] : 8
 
-}
+
 db = SQLAlchemy()
 
 class Image(db.Model):
