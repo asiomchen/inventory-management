@@ -44,6 +44,8 @@ def uploaded_file(filename):
 def create():
     if request.method == 'POST':
         title = request.form['title']
+        category_name = request.form['category']
+        category = Category.query.filter_by(name=category_name).first()
         description = request.form['description']
         quantity = int(request.form['quantity'])
         photo = request.files['photo']
@@ -66,6 +68,7 @@ def create():
             photo = 'No photo'
 
         product = Product(title=title, 
+                          category_idx=category.idx,
                           description=description, 
                           quantity=quantity, 
                           photo_idx=photo.idx if photo != 'No photo' else None,
