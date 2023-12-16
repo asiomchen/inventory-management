@@ -1,7 +1,7 @@
 import os
 import random
 from venv import logger
-from flask import Flask, render_template, request, url_for, redirect, send_from_directory , flash
+from flask import Flask
 from flask_login import LoginManager
 from werkzeug.security import generate_password_hash
 from utils import generate_random_image
