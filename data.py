@@ -67,6 +67,8 @@ class Invoice(db.Model):
     customer_price = db.Column(db.Float, default=0)
     status = db.Column(db.String(255), default='open')
     is_active = db.Column(db.Boolean, default=True)
+    customer_idx = db.Column(db.Integer, db.ForeignKey('customer.idx'))
+    customer = db.relationship('Customer', backref='invoice', lazy=True)
 
     def __repr__(self):
         return '<Invoice %r>' % self.idx
@@ -80,4 +82,15 @@ class User(UserMixin, db.Model):
 
     def __repr__(self):
         return '<User %r>' % self.username
+    
+class Customer(db.Model):
+    idx = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
+    address = db.Column(db.Text)
+    email = db.Column(db.String(255))
+    invoices = db.relationship('Invoice', backref='customer', lazy=True)
+    
+
+    def __repr__(self):
+        return '<Customer %r>' % self.name
     
