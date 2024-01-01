@@ -21,6 +21,7 @@
                 <th data-data="purchase_price" data-sort="true">Purchase price ($)</th>
                 <th data-data="sale_price" data-sort="true">Sale price ($)</th>
                 <th data-data="quantity" data-sort="true">Quantity</th>
+                <th data-data="tax_rate" data-sort="true">Tax rate (%)</th>
                 <th data-data="profit" data-sort="true">Profit ($)</th>
             </tr>
         </thead>
@@ -32,6 +33,7 @@
                     <td>{{ product.purchase_price }}</td>
                     <td>{{ product.sale_price }}</td>
                     <td>{{ product.quantity }}</td>
+                    <td>{{ '%i'|format(product.product.category.tax_rate) }}</td>
                     <td>{{ product.profit }}</td>
                 </tr>
             {% endfor %}
@@ -43,7 +45,6 @@
     <h4 class="text-right">Total profit: {{ invoice.total_profit }} $</h4>
     <h4 class="text-right">Total weight: {{ '%0.2f'|format(invoice.total_weight) }} kg</h4>
     <h4 class="text-right">Total gross price: {{ '%0.2f'|format(invoice.total_sale_price) }} $</h4>
-    <h4 class="text-right">Tax rate: {{ invoice.tax_rate }} %</h4>
     <h4 class="text-right">To pay: {{ '%0.2f'|format(invoice.customer_price) }} $</h4>
     
     {% set status_class = 'bg-success' if invoice.status == 'closed' else 'bg-danger' %}
