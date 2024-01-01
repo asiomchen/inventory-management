@@ -55,11 +55,11 @@
       </nav>
     <hr class="mt-0 mb-0">
     <div class="content">
-        <div class="container mt-1 mb-1">
+        <div>
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                 {% for category, message in messages %}
-                <div class="alert alert-{{ category }} text-center" >
+                <div class="container alert alert-{{ category }} text-center mt-2 mb-2 ml-auto mr-auto" role="alert">
                  {{ message }}
                 </div>
                 {% endfor %}
