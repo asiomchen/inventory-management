@@ -51,7 +51,8 @@ def create_app():
         db.create_all()
         if not Category.query.all():
             for category in product_categories:
-                category = Category(name=category)
+                tax_rate = 10.0 if category != "tea" else 8.0
+                category = Category(name=category, tax_rate=tax_rate)
                 db.session.add(category)
                 db.session.commit()
         if not Product.query.all():

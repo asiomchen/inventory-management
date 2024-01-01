@@ -2,8 +2,8 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
 from flask_login import UserMixin
 
-product_categories = ['Kettles','yixing pots', 'Tea Caddy', 'Scoop/Spoon','Ceramics','knife/pick','base','stove', \
-                      'wood','lacquer','tea','partnership sales','vintage teas','Miscellaneous']
+product_categories = ['kettles','yixing pots', 'tea caddy', 'scoop/spoon','ceramics','knife/pick','base','stove', \
+                      'wood','lacquer','tea','partnership sales','vintage teas','miscellaneous']
 db = SQLAlchemy()
 
 class Image(db.Model):
@@ -17,6 +17,7 @@ class Image(db.Model):
 class Category(db.Model):
     idx = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
+    tax_rate = db.Column(db.Float, default=10)
     
     def __repr__(self):
         return '<Category %r>' % self.name
