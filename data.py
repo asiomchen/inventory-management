@@ -88,8 +88,7 @@ class Customer(db.Model):
     name = db.Column(db.String(255), nullable=False)
     address = db.Column(db.Text)
     email = db.Column(db.String(255))
-    invoices = db.relationship('Invoice', backref='customer', lazy=True)
-    
+
 
     def __repr__(self):
         return '<Customer %r>' % self.name
