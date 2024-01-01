@@ -84,6 +84,12 @@ def create_app():
             user = User(username='admin', password=app.config["MAIN_PASSWORD"])
             db.session.add(user)
             db.session.commit()
+        @app.context_processor
+        def inject_categories():
+            """Inject categories into all templates for navbar"""
+            categories = Category.query.all()
+            return dict(categories=categories)
+    
     return app
                 
 
