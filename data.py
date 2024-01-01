@@ -64,7 +64,6 @@ class Invoice(db.Model):
     total_purchase_price = db.Column(db.Float, default=0)
     total_sale_price = db.Column(db.Float, default=0)
     total_profit = db.Column(db.Float, default=0)
-    tax_rate = db.Column(db.Float, default=10)
     customer_price = db.Column(db.Float, default=0)
     status = db.Column(db.String(255), default='open')
     is_active = db.Column(db.Boolean, default=True)

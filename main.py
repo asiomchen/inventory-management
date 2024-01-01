@@ -171,6 +171,10 @@ def change_active_status():
 @main.route('/add2invoice/<int:product_id>/', methods=('POST',))
 @login_required
 def add2invoice(product_id):
+    active_invoice = Invoice.query.filter_by(is_active=True).filter_by(status='open').first()
+    if not active_invoice:
+        flash('No active open invoices, please create one first', 'danger')
+        return redirect(url_for('main.invoices'))
     product = Product.query.get_or_404(product_id)
     quantity = int(request.form['quantity'])
     weight = product.weight * quantity
@@ -178,10 +182,8 @@ def add2invoice(product_id):
     sale_price = product.sale_price * quantity
     profit = sale_price - purchase_price
     product_title = product.title
-    active_invoice = Invoice.query.filter_by(is_active=True).filter_by(status='open').first()
-    if not active_invoice:
-        flash('No active open invoices, please create one first', 'danger')
-        return redirect(url_for('main.invoices'))
+    tax_rate = product.category.tax_rate / 100
+    customer_price = sale_price * (1 + tax_rate)
     invoice_id = active_invoice.idx
     if InvoiceProduct.query.filter_by(invoice_idx=invoice_id, product_idx=product_id).first():
         invoice_product = InvoiceProduct.query.filter_by(invoice_idx=invoice_id, product_idx=product_id).first()
@@ -205,7 +207,8 @@ def add2invoice(product_id):
             total_weight=weight, 
             total_purchase_price=purchase_price, 
             total_sale_price=sale_price, 
-            total_profit=profit, customer_price=sale_price * (1 + 10 / 100))
+            total_profit=profit, 
+            customer_price=customer_price)
         db.session.add(invoice)
     else:
         invoice = Invoice.query.get(invoice_id)
@@ -213,7 +216,7 @@ def add2invoice(product_id):
         invoice.total_purchase_price += purchase_price
         invoice.total_sale_price += sale_price
         invoice.total_profit += profit
-        invoice.customer_price = invoice.total_sale_price * (1 + invoice.tax_rate / 100)
+        invoice.customer_price += customer_price
         db.session.merge(invoice)
     product.quantity -= quantity
     db.session.merge(product)
