@@ -181,7 +181,6 @@ def add2invoice(product_id):
     purchase_price = product.purchase_price * quantity
     sale_price = product.sale_price * quantity
     profit = sale_price - purchase_price
-    product_title = product.title
     tax_rate = product.category.tax_rate / 100
     customer_price = sale_price * (1 + tax_rate)
     invoice_id = active_invoice.idx
@@ -195,7 +194,6 @@ def add2invoice(product_id):
     else:
         invoice_product = InvoiceProduct(invoice_idx=invoice_id,
                                             product_idx=product_id,
-                                            product_title=product_title,
                                             quantity=quantity,
                                             weight=weight,
                                             purchase_price=purchase_price,

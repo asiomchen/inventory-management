@@ -45,7 +45,6 @@ class InvoiceProduct(db.Model):
     invoice_idx = db.Column(db.Integer, db.ForeignKey('invoice.idx'))
     product_idx = db.Column(db.Integer, db.ForeignKey('product.idx'))
     product = db.relationship('Product', backref='invoice', lazy=True)
-    product_title = db.Column(db.Text, nullable=False)
     quantity = db.Column(db.Integer)
     weight = db.Column(db.Float)
     purchase_price = db.Column(db.Float)
