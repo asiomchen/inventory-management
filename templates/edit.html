@@ -14,11 +14,11 @@
                     </div>
                     <div class="mb-3">
                         <label for="title" class="form-label">Category</label>
-                        # create dropdown with all categories
                         <select class="form-select" name="category">
                             {% for category in categories %}
                                 <option value="{{ category.name }}" {% if category.name == product.category.name %} selected {% endif %}>{{ category.name }}</option>
                             {% endfor %}
+                        </select>
                     <br>
                     <div class="mb-3">
                         <label for="New photo upload" class="form-label">Photo</label>
