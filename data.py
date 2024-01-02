@@ -87,6 +87,7 @@ class Customer(db.Model):
     name = db.Column(db.String(255), nullable=False)
     address = db.Column(db.Text)
     email = db.Column(db.String(255))
+    phone = db.Column(db.String(255))
 
 
     def __repr__(self):

@@ -1,3 +1,4 @@
+import email
 import os
 import random
 from venv import logger
@@ -5,7 +6,7 @@ from flask import Flask, render_template, request, url_for, redirect, send_from_
 from flask_login import LoginManager
 from werkzeug.security import generate_password_hash
 from utils import generate_random_image
-from data import db, Product, InvoiceProduct, Invoice, User, Image, Category, product_categories
+from data import db, Product, InvoiceProduct, Invoice, User, Image, Category, Customer, product_categories
 from dotenv import load_dotenv
 load_dotenv()
 from main import main
@@ -81,8 +82,18 @@ def create_app():
                 db.session.add(product)
                 db.session.commit()
         if not User.query.all():
-            user = User(username='admin', password=app.config["MAIN_PASSWORD"])
+            user = User(
+                username='admin', 
+                password=app.config["MAIN_PASSWORD"])
             db.session.add(user)
+            db.session.commit()
+        if not Customer.query.all():
+            customer = Customer(
+                name='Default Customer', 
+                address='Default Address', 
+                email='example@example.com', 
+                phone='1234567890')
+            db.session.add(customer)
             db.session.commit()
         @app.context_processor
         def inject_categories():
