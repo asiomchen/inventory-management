@@ -28,7 +28,7 @@ def new():
         customer = Customer(name=name, phone=phone, address=address, notes=notes)
         db.session.add(customer)
         db.session.commit()
-        flash('Customer added successfully')
+        flash('Customer added successfully' , 'success')
         return redirect(url_for('customer.customers'))
     return render_template('customers/new.html')
 
@@ -42,7 +42,7 @@ def edit(customer_id):
         customer.address = request.form['address']
         customer.notes = request.form['notes']
         db.session.commit()
-        flash('Customer updated successfully')
+        flash('Customer updated successfully', 'success')
         return redirect(url_for('customer.customers'))
     return render_template('customers/edit.html', customer=customer)
 
@@ -52,5 +52,5 @@ def delete(customer_id):
     customer = Customer.query.get(customer_id)
     db.session.delete(customer)
     db.session.commit()
-    flash('Customer deleted successfully')
+    flash('Customer deleted successfully', 'success')
     return redirect(url_for('customer.customers'))
