@@ -138,9 +138,16 @@ def table():
 def new_invoice():
     if request.method == 'POST':
         name = request.form['invoice_name']
-        if not name or not re.match(r'^[a-zA-Z0-9_]+$', name):
+        if not name or not re.match(r'^[a-zA-Z0-9_\s]+$', name):
             flash('Please enter a valid invoice name', 'danger')
-            return redirect(url_for('main.invoices'))
+        else:
+            name = name.strip()
+            if name == "" or re.match(r'\s+', name):
+                flash('Please enter a valid invoice name', 'danger')
+                return redirect(url_for('main.invoices'))
+            elif Invoice.query.filter_by(name=name).first():
+                flash('Invoice with this name already exists', 'danger')
+                return redirect(url_for('main.invoices'))
         invoice = Invoice(name=name)
         current_active_invoice = Invoice.query.filter_by(is_active=True).first()
         if current_active_invoice:
