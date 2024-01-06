@@ -66,7 +66,7 @@ class Invoice(db.Model):
     customer_price = db.Column(db.Float, default=0)
     status = db.Column(db.String(255), default='open')
     is_active = db.Column(db.Boolean, default=True)
-    customer_idx = db.Column(db.Integer, db.ForeignKey('customer.idx'))
+    customer_idx = db.Column(db.Integer, db.ForeignKey('customer.idx'), nullable=True, default=None)
     customer = db.relationship('Customer', backref='invoice', lazy=True)
 
     def __repr__(self):
@@ -88,7 +88,6 @@ class Customer(db.Model):
     address = db.Column(db.Text)
     email = db.Column(db.String(255))
     phone = db.Column(db.String(255))
-
 
     def __repr__(self):
         return '<Customer %r>' % self.name
