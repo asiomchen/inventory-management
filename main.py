@@ -53,6 +53,9 @@ def create():
         purchase_price = float(request.form['purchase_price'])
         sale_price = float(request.form['sale_price'])
         profit = sale_price - purchase_price
+        category_name = request.form['category']
+        category = Category.query.filter_by(name=category_name).first()
+        category_idx = category.idx
 
         if photo:
             filename = secure_filename(photo.filename)
@@ -74,7 +77,7 @@ def create():
                           weight=weight, 
                           purchase_price=purchase_price, 
                           sale_price=sale_price, 
-                          profit=profit)
+                          profit=profit, category_idx=category_idx)
         db.session.add(product)
         db.session.commit()
 
