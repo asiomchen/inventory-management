@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+                <h1 class="display-4">#{{ customer.idx }} {{ customer.name }}</h1>
+                <hr>
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h3 class="text-center">Customer information:</h3>
+            <table class="table table-striped">
+                <tr>
+                    <td>Name</td>
+                    <td>{{ customer.name }}</td>
+                </tr>
+                <tr>
+                    <td>Email</td>
+                    <td>{{ customer.email }}</td>
+                </tr>
+                <tr>
+                    <td>Phone</td>
+                    <td>{{ customer.phone }}</td>
+                </tr>
+                <tr>
+                    <td>Shipping address</td>
+                    <td>{{ customer.address }}</td>
+                </tr>
+            </table>
+            <form method="GET" action="{{ url_for('customer.edit', customer_id=customer.idx) }}">
+                <input type="submit" class="btn btn-primary btn-custom" value="Edit info" onclick="return confirm('Are you sure you want to edit this entry?')">
+            </form>
+            <form method="POST" action="{{ url_for('customer.delete', customer_id=customer.idx) }}">
+                <input type="submit" class="btn btn-danger btn-custom mt-2" value="Delete customer" onclick="return confirm('Are you sure you want to delete this entry?')">
+            </form>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <h3>Notes:</h3>
+            <p>{{ customer.notes }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

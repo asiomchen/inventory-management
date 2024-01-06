@@ -4,7 +4,8 @@ from flask import render_template, request, url_for, redirect, send_from_directo
 from werkzeug.utils import secure_filename
 from flask_login import login_required
 import logging
-from data import Product, InvoiceProduct, Invoice, User, Image, Category, db
+from customer import customers
+from data import Product, InvoiceProduct, Invoice, User, Image, Category,  Customer, db
 from images import upload_image, delete_image, deliver_image
 
 main = Blueprint('main', __name__)
@@ -22,12 +23,11 @@ def index():
 def category(category_id):
     products = Product.query.filter_by(category_idx=category_id).all()
     current_category = Category.query.get_or_404(category_id)
-    all_categories = Category.query.all()
     if not products:
         flash('No products in this category yet', 'info')
         return redirect(url_for('main.index'))
     return render_template('index.html', products=products,
-                            category_name=current_category.name, categories=all_categories)
+                            category_name=current_category.name)
 
 @main.route('/<int:product_id>/')
 @login_required
@@ -79,7 +79,7 @@ def create():
         db.session.commit()
 
         return redirect(url_for('main.index'))
-    return render_template('create.html', categories=Category.query.all())
+    return render_template('create.html')
 
 @main.route('/<int:product_id>/edit/', methods=('GET', 'POST'))
 @login_required
@@ -112,9 +112,7 @@ def edit(product_id):
         db.session.commit()
 
         return redirect(url_for('main.index'))
-    categories = Category.query.all()
-
-    return render_template('edit.html', product=product, categories=categories)
+    return render_template('edit.html', product=product)
 
 @main.route('/about/')
 @login_required
@@ -140,6 +138,16 @@ def table():
 def new_invoice():
     if request.method == 'POST':
         name = request.form['invoice_name']
+        if not name or not re.match(r'^[a-zA-Z0-9_\s]+$', name):
+            flash('Please enter a valid invoice name', 'danger')
+        else:
+            name = name.strip()
+            if name == "" or re.match(r'\s+', name):
+                flash('Please enter a valid invoice name', 'danger')
+                return redirect(url_for('main.invoices'))
+            elif Invoice.query.filter_by(name=name).first():
+                flash('Invoice with this name already exists', 'danger')
+                return redirect(url_for('main.invoices'))
         invoice = Invoice(name=name)
         current_active_invoice = Invoice.query.filter_by(is_active=True).first()
         if current_active_invoice:
@@ -174,17 +182,18 @@ def change_active_status():
 @main.route('/add2invoice/<int:product_id>/', methods=('POST',))
 @login_required
 def add2invoice(product_id):
+    active_invoice = Invoice.query.filter_by(is_active=True).filter_by(status='open').first()
+    if not active_invoice:
+        flash('No active open invoices, please create one first', 'danger')
+        return redirect(url_for('main.invoices'))
     product = Product.query.get_or_404(product_id)
     quantity = int(request.form['quantity'])
     weight = product.weight * quantity
     purchase_price = product.purchase_price * quantity
     sale_price = product.sale_price * quantity
     profit = sale_price - purchase_price
-    product_title = product.title
-    active_invoice = Invoice.query.filter_by(is_active=True).filter_by(status='open').first()
-    if not active_invoice:
-        flash('No active open invoices, please create one first', 'danger')
-        return redirect(url_for('main.invoices'))
+    tax_rate = product.category.tax_rate / 100
+    customer_price = sale_price * (1 + tax_rate)
     invoice_id = active_invoice.idx
     if InvoiceProduct.query.filter_by(invoice_idx=invoice_id, product_idx=product_id).first():
         invoice_product = InvoiceProduct.query.filter_by(invoice_idx=invoice_id, product_idx=product_id).first()
@@ -196,7 +205,6 @@ def add2invoice(product_id):
     else:
         invoice_product = InvoiceProduct(invoice_idx=invoice_id,
                                             product_idx=product_id,
-                                            product_title=product_title,
                                             quantity=quantity,
                                             weight=weight,
                                             purchase_price=purchase_price,
@@ -208,7 +216,8 @@ def add2invoice(product_id):
             total_weight=weight, 
             total_purchase_price=purchase_price, 
             total_sale_price=sale_price, 
-            total_profit=profit, customer_price=sale_price * (1 + 10 / 100))
+            total_profit=profit, 
+            customer_price=customer_price)
         db.session.add(invoice)
     else:
         invoice = Invoice.query.get(invoice_id)
@@ -216,7 +225,7 @@ def add2invoice(product_id):
         invoice.total_purchase_price += purchase_price
         invoice.total_sale_price += sale_price
         invoice.total_profit += profit
-        invoice.customer_price = invoice.total_sale_price * (1 + invoice.tax_rate / 100)
+        invoice.customer_price += customer_price
         db.session.merge(invoice)
     product.quantity -= quantity
     db.session.merge(product)
@@ -232,9 +241,10 @@ def invoice(invoice_id):
     invoice = Invoice.query.get_or_404(invoice_id)
     # select products from invoice by invoice_id and sum quantities weight, purchase_price, sale_price, profit
     products = InvoiceProduct.query.filter_by(invoice_idx=invoice_id).all()
+    customers = Customer.query.all()
 
     logging.debug(products)
-    return render_template('invoice.html', invoice=invoice, products=products)
+    return render_template('invoice.html', invoice=invoice, products=products, customers=customers)
 
 @main.route('/latest_invoice/')
 @login_required
@@ -258,6 +268,12 @@ def active_invoice():
 @login_required
 def submit_invoice(invoice_id):
     invoice = Invoice.query.get_or_404(invoice_id)
+    if not invoice.invoice_products:
+        flash('No products in this invoice, please add some', 'danger')
+        return redirect(url_for('main.invoice', invoice_id=invoice_id))
+    if not invoice.customer_idx:
+        flash('No customer assigned to this invoice, please assign one', 'danger')
+        return redirect(url_for('main.invoice', invoice_id=invoice_id))
     invoice.status = 'closed'
     db.session.merge(invoice)
     db.session.commit()
@@ -310,19 +326,26 @@ def invoices():
     invoices = Invoice.query.all()
     return render_template('invoices.html', invoices=invoices)
 
+@main.route('/invoices/customer=<int:customer_id>/')
+@login_required
+def invoices_by_customer(customer_id):
+    invoices = Invoice.query.filter_by(customer_idx=customer_id).all()
+    customer = Customer.query.get_or_404(customer_id)
+    return render_template('invoices.html', invoices=invoices, customer=customer)
+
+@main.route('/invoices/<int:invoice_id>/assign_customer/', methods=['POST'])
+def assign_customer(invoice_id):
+    invoice = Invoice.query.get_or_404(invoice_id)
+    customer_id = int(request.form['customer_id'])
+    customer = Customer.query.get_or_404(customer_id)
+    invoice.customer_idx = customer.idx
+    db.session.merge(invoice)
+    db.session.commit()
+    flash(f'Customer {customer.name} assigned to invoice #{invoice.idx}', 'success')
+    return redirect(url_for('main.invoice', invoice_id=invoice_id))
+
 def update_quantity(product_id, quantity):
     product = Product.query.get_or_404(product_id)
     product.quantity -= quantity
     db.session.merge(product)
     db.session.commit()
-
-@main.route('/change_tax_rate/', methods=['POST'])
-@login_required
-def change_invoice_tax_rate():
-    invoice_id = int(request.form['invoice_id'])
-    invoice = Invoice.query.get_or_404(invoice_id)
-    invoice.tax_rate = float(request.form['tax_rate'])
-    invoice.customer_price = invoice.total_sale_price * (1 + invoice.tax_rate / 100)
-    db.session.merge(invoice)
-    db.session.commit()
-    return redirect(url_for('main.invoice', invoice_id=invoice_id))

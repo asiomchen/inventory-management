@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container">
+
     <h1 class="title display-4 text-center mb-4">{% block title %} Products {% endblock %}</h1>
     {% if category_name is not none %}
         <h2 class="title display-6 text-center mb-3">Category: {{ category_name }}</h2>
     {% endif %}
     <hr>
+    <div class="container">
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {% for product in products %}
             <div class="col mb-3">

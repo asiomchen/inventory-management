@@ -17,9 +17,6 @@
           </button>
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0 ml-auto">
-              <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="{{ url_for('main.index') }}">Home</a>
-              </li>
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   Products
@@ -44,6 +41,9 @@
                 <a class="nav-link" href="{{ url_for('main.invoices') }}">Invoices</a>
               </li>
               <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('customer.customers') }}">Customers</a>
+              </li>
+              <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('main.index') }}">Analytics</a>
               </li>
               <li class="nav-item">
@@ -53,13 +53,13 @@
           </div>
         </div>
       </nav>
-    <hr>
+    <hr class="mt-0 mb-0">
     <div class="content">
-        <div class="container mt-4">
+        <div>
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                 {% for category, message in messages %}
-                <div class="alert alert-{{ category }} text-center" >
+                <div class="container alert alert-{{ category }} text-center mt-2 mb-2 ml-auto mr-auto" role="alert">
                  {{ message }}
                 </div>
                 {% endfor %}

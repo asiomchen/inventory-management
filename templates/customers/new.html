@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h1 style="width: 100%">{% block title %} Add a customer {% endblock %}</h1>
+            <form method="post" enctype="multipart/form-data" class="form">
+                <div class="mb-3">
+                    <label for="title" class="form-label">Name</label>
+                    <input type="text" class="form-control" name="name" placeholder="Name">
+                </div>
+            
+            
+                <div class="mb-3">
+                    <label for="Phone" class="form-label">Phone</label>
+                    <input type="text" class="form-control" name="phone" placeholder="Phone">
+                </div>
+
+                <div class="mb-3">
+                    <label for="Phone" class="form-label">Address</label>
+                    <input type="text" class="form-control" name="address" placeholder="Shipping Address">
+                </div>
+                <div class="mb-3">
+                    <label for="Notes" class="form-label">Notes</label>
+                    <textarea class="form-control" name="notes" rows="6" placeholder="Additional Notes"></textarea>
+                </div>
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <a href="{{ url_for('customer.customers') }}" class="btn btn-secondary">Back</a>
+                </div>
+            </form>
+            
+            <hr>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -5,12 +5,14 @@ from flask import Flask, render_template, request, url_for, redirect, send_from_
 from flask_login import LoginManager
 from werkzeug.security import generate_password_hash
 from utils import generate_random_image
-from data import db, Product, InvoiceProduct, Invoice, User, Image, Category, product_categories
+from data import db, Product, InvoiceProduct, Invoice, User, Image, Category, Customer, product_categories
 from dotenv import load_dotenv
 load_dotenv()
 from main import main
 from images import upload_image, delete_image, deliver_image
 from auth import auth as auth_blueprint
+from customer import customer as customer_blueprint
+from invoice import invoice as invoice_blueprint
 import logging
 import sys
 import pymysql
@@ -36,6 +38,8 @@ def create_app():
 
     app.register_blueprint(main)
     app.register_blueprint(auth_blueprint)
+    app.register_blueprint(customer_blueprint)
+    app.register_blueprint(invoice_blueprint)
     app.jinja_env.globals.update(deliver_image=deliver_image)
     db.init_app(app)
     login_manager = LoginManager()
@@ -51,7 +55,8 @@ def create_app():
         db.create_all()
         if not Category.query.all():
             for category in product_categories:
-                category = Category(name=category)
+                tax_rate = 10.0 if category != "tea" else 8.0
+                category = Category(name=category, tax_rate=tax_rate)
                 db.session.add(category)
                 db.session.commit()
         if not Product.query.all():
@@ -80,9 +85,25 @@ def create_app():
                 db.session.add(product)
                 db.session.commit()
         if not User.query.all():
-            user = User(username='admin', password=app.config["MAIN_PASSWORD"])
+            user = User(
+                username='admin', 
+                password=app.config["MAIN_PASSWORD"])
             db.session.add(user)
             db.session.commit()
+        if not Customer.query.all():
+            customer = Customer(
+                name='Default Customer', 
+                address='Default Address', 
+                email='example@example.com', 
+                phone='1234567890')
+            db.session.add(customer)
+            db.session.commit()
+        @app.context_processor
+        def inject_categories():
+            """Inject categories into all templates for navbar"""
+            categories = Category.query.all()
+            return dict(categories=categories)
+    
     return app
                 
 
