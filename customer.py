@@ -1,3 +1,4 @@
+import email
 from flask import render_template, request, url_for, redirect, send_from_directory, Blueprint, current_app, flash
 from flask_login import login_required
 from data import db , Customer
@@ -24,8 +25,9 @@ def new():
         name = request.form['name']
         phone = request.form['phone']
         address = request.form['address']
+        email = request.form['email']
         notes = request.form['notes']
-        customer = Customer(name=name, phone=phone, address=address, notes=notes)
+        customer = Customer(name=name, phone=phone, address=address, notes=notes , email=email)
         db.session.add(customer)
         db.session.commit()
         flash('Customer added successfully' , 'success')

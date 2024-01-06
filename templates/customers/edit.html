@@ -17,15 +17,18 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="Phone" class="form-label">Address</label>
+                    <label for="Address" class="form-label">Address</label>
                     <input type="text" class="form-control" name="address" placeholder="{{ customer.address }}">
                 </div>
-
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="text" class="form-control" name="email" placeholder="Email">
+                </div>
                 <div class="mb-3">
                     <label for="Notes" class="form-label">Notes</label>
                     <textarea class="form-control" name="notes" rows="6" placeholder="{{ customer.notes }}"></textarea>
                 </div>
-                
+
                 <div class="mb-3">
                     <button type="submit" class="btn btn-primary">Submit</button>
                     <a href="{{ url_for('customer.customers') }}" class="btn btn-secondary">Back</a>
