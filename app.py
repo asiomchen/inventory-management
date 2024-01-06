@@ -1,4 +1,3 @@
-import email
 import os
 import random
 from venv import logger
@@ -12,6 +11,7 @@ load_dotenv()
 from main import main
 from images import upload_image, delete_image, deliver_image
 from auth import auth as auth_blueprint
+from customer import customer as customer_blueprint
 import logging
 import sys
 import pymysql
@@ -37,6 +37,7 @@ def create_app():
 
     app.register_blueprint(main)
     app.register_blueprint(auth_blueprint)
+    app.register_blueprint(customer_blueprint)
     app.jinja_env.globals.update(deliver_image=deliver_image)
     db.init_app(app)
     login_manager = LoginManager()
