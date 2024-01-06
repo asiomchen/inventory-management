@@ -65,7 +65,7 @@
 <div class="container align-items-right text-right shadow-lg p-2 mb-2 mt-1 bg-body rounded">
     <h4 class="text-right">Total profit: {{ invoice.total_profit }} $</h4>
     <h4 class="text-right">Total weight: {{ '%0.2f'|format(invoice.total_weight) }} kg</h4>
-    <h4 class="text-right">Total gross price: {{ '%0.2f'|format(invoice.total_sale_price) }} $</h4>
+    <h4 class="text-right">Total net price: {{ '%0.2f'|format(invoice.total_sale_price) }} $</h4>
     <h4 class="text-right">To pay: {{ '%0.2f'|format(invoice.customer_price) }} $</h4>
     
     {% set status_class = 'bg-success' if invoice.status == 'closed' else 'bg-danger' %}
@@ -76,7 +76,7 @@
     {% endif %}
 </div>
 <div class="container align-items-right text-right shadow-lg p-2 mb-2 mt-1 bg-body rounded">
-    <a href="{{ url_for('invoice.print', invoice_id=invoice.idx) }}" class="btn btn-primary">Export to PDF</a>
+    <a href="{{ url_for('invoice.print', invoice_id=invoice.idx) }}" class="btn btn-primary">Export invoice</a>
     <a href="{{ url_for('main.edit_invoice', invoice_id=invoice.idx) }}" class="btn btn-warning">Edit invoice</a>
     <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Back to home</a>
 </div>
