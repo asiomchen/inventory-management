@@ -27,7 +27,7 @@
                         <td>{{ customer.phone }}</td>
                         <td>{{ customer.email }}</td>
                         <td style="display:none">{{ customer.notes }}</td>
-                        <td><a href="#">Invoices</a></td>
+                        <td><a href="{{ url_for('main.invoices_by_customer', customer_id=customer.idx) }}">Invoices</a></td>
                     </tr>
                 {% endfor %}
             </tbody>

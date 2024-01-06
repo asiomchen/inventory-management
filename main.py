@@ -261,6 +261,12 @@ def active_invoice():
 @login_required
 def submit_invoice(invoice_id):
     invoice = Invoice.query.get_or_404(invoice_id)
+    if not invoice.invoice_products:
+        flash('No products in this invoice, please add some', 'danger')
+        return redirect(url_for('main.invoice', invoice_id=invoice_id))
+    if not invoice.customer_idx:
+        flash('No customer assigned to this invoice, please assign one', 'danger')
+        return redirect(url_for('main.invoice', invoice_id=invoice_id))
     invoice.status = 'closed'
     db.session.merge(invoice)
     db.session.commit()
