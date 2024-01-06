@@ -59,31 +59,31 @@ def create_app():
                 category = Category(name=category, tax_rate=tax_rate)
                 db.session.add(category)
                 db.session.commit()
-        if not Product.query.all():
-            for i in range(2):
-                weight = round(random.random(), 2)
-                purchase_price = random.randint(1, 100)
-                sale_price = purchase_price + random.randint(1, 50)
-                profit = sale_price - purchase_price
-                photo = generate_random_image(f'{UPLOAD_FOLDER}/test_product_{i}.png')
-                secure_url, public_id = upload_image(photo)
-                image = Image(url=secure_url, public_id=public_id)
-                db.session.add(image)
-                db.session.commit()
-                image = Image.query.filter_by(public_id=public_id).first()
-                product = Product(title=f'Product {i}', 
-                                description=f'Description {i}', 
-                                category_idx=1,
-                                quantity=i, 
-                                photo_idx = image.idx,
-                                weight=weight,
-                                purchase_price=purchase_price,
-                                sale_price=sale_price,
-                                profit=profit)
-                logging.info(f"image: {image}"
-                                f"product: {product}")
-                db.session.add(product)
-                db.session.commit()
+        # if not Product.query.all():
+        #     for i in range(2):
+        #         weight = round(random.random(), 2)
+        #         purchase_price = random.randint(1, 100)
+        #         sale_price = purchase_price + random.randint(1, 50)
+        #         profit = sale_price - purchase_price
+        #         photo = generate_random_image(f'{UPLOAD_FOLDER}/test_product_{i}.png')
+        #         secure_url, public_id = upload_image(photo)
+        #         image = Image(url=secure_url, public_id=public_id)
+        #         db.session.add(image)
+        #         db.session.commit()
+        #         image = Image.query.filter_by(public_id=public_id).first()
+        #         product = Product(title=f'Product {i}', 
+        #                         description=f'Description {i}', 
+        #                         category_idx=1,
+        #                         quantity=i, 
+        #                         photo_idx = image.idx,
+        #                         weight=weight,
+        #                         purchase_price=purchase_price,
+        #                         sale_price=sale_price,
+        #                         profit=profit)
+        #         logging.info(f"image: {image}"
+        #                         f"product: {product}")
+        #         db.session.add(product)
+        #         db.session.commit()
         if not User.query.all():
             user = User(
                 username='admin', 
