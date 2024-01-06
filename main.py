@@ -4,7 +4,8 @@ from flask import render_template, request, url_for, redirect, send_from_directo
 from werkzeug.utils import secure_filename
 from flask_login import login_required
 import logging
-from data import Product, InvoiceProduct, Invoice, User, Image, Category, db
+from customer import customers
+from data import Product, InvoiceProduct, Invoice, User, Image, Category,  Customer, db
 from images import upload_image, delete_image, deliver_image
 
 main = Blueprint('main', __name__)
@@ -233,9 +234,10 @@ def invoice(invoice_id):
     invoice = Invoice.query.get_or_404(invoice_id)
     # select products from invoice by invoice_id and sum quantities weight, purchase_price, sale_price, profit
     products = InvoiceProduct.query.filter_by(invoice_idx=invoice_id).all()
+    customers = Customer.query.all()
 
     logging.debug(products)
-    return render_template('invoice.html', invoice=invoice, products=products)
+    return render_template('invoice.html', invoice=invoice, products=products, customers=customers)
 
 @main.route('/latest_invoice/')
 @login_required
@@ -310,6 +312,24 @@ def edit_invoice(invoice_id):
 def invoices():
     invoices = Invoice.query.all()
     return render_template('invoices.html', invoices=invoices)
+
+@main.route('/invoices/customer=<int:customer_id>/')
+@login_required
+def invoices_by_customer(customer_id):
+    invoices = Invoice.query.filter_by(customer_idx=customer_id).all()
+    customer = Customer.query.get_or_404(customer_id)
+    return render_template('invoices.html', invoices=invoices, customer=customer)
+
+@main.route('/invoices/<int:invoice_id>/assign_customer/', methods=['POST'])
+def assign_customer(invoice_id):
+    invoice = Invoice.query.get_or_404(invoice_id)
+    customer_id = int(request.form['customer_id'])
+    customer = Customer.query.get_or_404(customer_id)
+    invoice.customer_idx = customer.idx
+    db.session.merge(invoice)
+    db.session.commit()
+    flash(f'Customer {customer.name} assigned to invoice #{invoice.idx}', 'success')
+    return redirect(url_for('main.invoice', invoice_id=invoice_id))
 
 def update_quantity(product_id, quantity):
     product = Product.query.get_or_404(product_id)
