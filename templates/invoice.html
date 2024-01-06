@@ -30,7 +30,7 @@
         <button type="submit" class="btn btn-primary">Assign customer</button>
     </div>
 {% endif %}
-
+</form>
 </div>
 <div class="table-container">
     <div class="table-responsive">
@@ -75,8 +75,10 @@
         <a href="{{ url_for('main.submit_invoice', invoice_id=invoice.idx) }}" class="btn btn-primary">Submit invoice</a>
     {% endif %}
 </div>
-
-    <a href="{{ url_for('main.edit_invoice', invoice_id=invoice.idx) }}" class="btn btn-primary">Edit invoice</a>
-    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Back to home</a>
+<div class="container align-items-right text-right shadow-lg p-2 mb-2 mt-1 bg-body rounded">
+    <a href="{{ url_for('invoice.print', invoice_id=invoice.idx) }}" class="btn btn-primary">Export to PDF</a>
+    <a href="{{ url_for('main.edit_invoice', invoice_id=invoice.idx) }}" class="btn btn-warning">Edit invoice</a>
+    <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Back to home</a>
+</div>
 </div>
 {% endblock %}
