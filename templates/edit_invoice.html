@@ -54,14 +54,6 @@
         </tbody>
     </table>
 </div>
-<h4 class="text-right">Tax rate(%): </h4>
-<form method="post" enctype="multipart/form-data" class="form" action="/change_tax_rate/">
-    <div class="input-group-text mb-3 w-50">
-        <input type="text" class="form-control" name="tax_rate" value="{{ invoice.tax_rate }}" placeholder="Tax rate">
-        <input type="hidden" name="invoice_id" value="{{ invoice.idx }}">
-        <button type="submit" class="btn btn-primary">Update</button>
-    </div>
-</form>
 {% endblock %}
 
 {% block scripts %}

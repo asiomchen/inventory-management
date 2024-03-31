@@ -1,7 +1,7 @@
 import email
 from flask import render_template, request, url_for, redirect, send_from_directory, Blueprint, current_app, flash
 from flask_login import login_required
-from data import db , Customer
+from data import db , Customer, Invoice
 
 
 customer = Blueprint('customer', __name__)
@@ -52,6 +52,10 @@ def edit(customer_id):
 @login_required
 def delete(customer_id):
     customer = Customer.query.get(customer_id)
+    invoices = Invoice.query.filter_by(customer_idx=customer.idx).all()
+    if invoices:
+        flash('Customer has invoices and cannot be deleted', 'danger')
+        return redirect(url_for('customer.customers'))
     db.session.delete(customer)
     db.session.commit()
     flash('Customer deleted successfully', 'success')
