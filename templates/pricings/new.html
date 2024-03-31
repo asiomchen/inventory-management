@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h1 style="width: 100%">{% block title %} Add a pricing strategy {% endblock %}</h1>
+            <form method="post" enctype="multipart/form-data" class="form">
+                <div class="mb-3">
+                    <label for="title" class="form-label">Name</label>
+                    <input type="text" class="form-control" name="name" value="Name">
+                </div>
+
+                <div class="mb-3">
+                    <label for="Phone" class="form-label">Online formula</label>
+                    <input type="text" class="form-control" name="formula_online" placeholder="Formula for online sales">
+                </div>
+
+                <div class="mb-3">
+                    <label for="Address" class="form-label">Teahouse formula</label>
+                    <input type="text" class="form-control" name="formula_teahouse" placeholder="Formula for teahouse sales">
+                </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <a href="{{ url_for('pricing.pricings') }}" class="btn btn-secondary">Back</a>
+                </div>
+            </form>  
+            <hr>
+        </div>
+    </div>
+</div>
+{% endblock %}

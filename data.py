@@ -93,3 +93,12 @@ class Customer(db.Model):
     def __repr__(self):
         return '<Customer %r>' % self.name
     
+
+class Pricing(db.Model):
+    idx = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
+    formula_online = db.Column(db.Text)
+    formula_teahouse = db.Column(db.Text)
+    
+    def __repr__(self):
+        return '<Pricing %r>' % self.name

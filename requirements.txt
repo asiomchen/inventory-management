@@ -1,10 +1,9 @@
-cloudinary==1.37.0
-Flask==2.3.3
-Flask-Login==0.6.3
-Flask-SQLAlchemy==3.0.5
+cloudinary
+Flask-Login
+Flask-SQLAlchemy
 pymysql[rsa]
-randimage==1.2
-SQLAlchemy==2.0.20
-Werkzeug==2.3.7
+randimage
+SQLAlchemy
+Werkzeug
 gunicorn
 python-dotenv
