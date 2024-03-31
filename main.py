@@ -187,7 +187,7 @@ def change_active_status():
 def add2invoice(product_id):
     active_invoice = Invoice.query.filter_by(is_active=True).filter_by(status='open').first()
     if not active_invoice:
-        flash('No active open invoices, please create one first', 'danger')
+        flash('No active open invoices, please create or choose one first', 'danger')
         return redirect(url_for('main.invoices'))
     product = Product.query.get_or_404(product_id)
     quantity = int(request.form['quantity'])

@@ -37,7 +37,7 @@ def new():
 @customer.route('/customers/<int:customer_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit(customer_id):
-    customer = Customer.query.get(customer_id)
+    customer: Customer = Customer.query.get(customer_id)
     if request.method == 'POST':
         customer.name = request.form['name']
         customer.phone = request.form['phone']
