@@ -128,10 +128,19 @@ def edit(product_id):
             if new_photo.filename:
                 # Process the new photo and update the product's photo field
                 filename = secure_filename(new_photo.filename)
+                logging.info(f"New photo uploaded: {filename}")
                 new_photo.save(
                     os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
                 )
-                product.photo = filename
+                url, public_id = upload_image(
+                    os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
+                )
+                image = Image(url=url, public_id=public_id)
+                db.session.add(image)
+                db.session.commit()
+                image = Image.query.filter_by(public_id=public_id).first()
+                product.photo_idx = image.idx
+                os.remove(os.path.join(current_app.config["UPLOAD_FOLDER"], filename))
 
         db.session.add(product)
         db.session.commit()
