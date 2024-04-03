@@ -17,18 +17,13 @@ invoice_blueprint = Blueprint("invoice", __name__)
 @login_required
 def new_invoice():
     if request.method == "POST":
-        name = request.form["invoice_name"]
-        if not name or not re.match(r"^[a-zA-Z0-9_\s]+$", name) or name == "":
-            flash("Please enter a valid invoice name", "danger")
-            return redirect(url_for("invoice.invoices"))
-        else:
-            name = name.strip()
-            if name == "" or re.match(r"\s+", name):
-                flash("Please enter a valid invoice name", "danger")
-                return redirect(url_for("invoice.invoices"))
-            elif Invoice.query.filter_by(name=name).first():
-                flash("Invoice with this name already exists", "danger")
-                return redirect(url_for("invoice.invoices"))
+        name = request.form["invoice_name"].strip()
+        if not validate_name(name):
+            flash("Please enter a valid name", "danger")
+            return redirect(url_for("invoice.new_invoice"))
+        elif Invoice.query.filter_by(name=name).first():
+            flash("Invoice with this name already exists", "danger")
+            return redirect(url_for("invoice.new_invoice"))
         invoice = Invoice(name=name)
         current_active_invoice = Invoice.query.filter_by(is_active=True).first()
         if current_active_invoice:
@@ -166,23 +161,18 @@ def active_invoice():
 def rename(invoice_id):
     invoice = Invoice.query.get_or_404(invoice_id)
     old_name = invoice.name
-    new_name = request.form["new_name"]
-    if not new_name or not re.match(r"^[a-zA-Z0-9_\s]+$", new_name) or new_name == "":
-        flash("Please enter a valid invoice name", "danger")
-        return redirect(url_for("invoice.invoice", invoice_id=invoice_id))
-    else:
-        new_name = new_name.strip()
-        if new_name == "" or re.match(r"\s+", new_name):
-            flash("Please enter a valid invoice name", "danger")
-            return redirect(url_for("invoice.edit_invoice", invoice_id=invoice_id))
-        elif Invoice.query.filter_by(name=new_name).first():
-            flash("Invoice with this name already exists", "danger")
-            return redirect(url_for("invoice.edit_invoice", invoice_id=invoice_id))
+    new_name = request.form["new_name"].strip()
+    if not validate_name(new_name):
+        flash("Please enter a valid name", "danger")
+        return redirect(url_for("invoice.edit_invoice", invoice_id=invoice_id))
+    elif Invoice.query.filter_by(name=new_name).first():
+        flash("Invoice with this name already exists", "danger")
+        return redirect(url_for("invoice.edit_invoice", invoice_id=invoice_id))
     invoice.name = new_name
     db.session.merge(invoice)
     db.session.commit()
     flash(f"Invoice #{invoice_id} {old_name} renamed to {new_name}", "success")
-    return redirect(url_for("invoice.invoice", invoice_id=invoice_id))
+    return redirect(url_for("invoice.edit_invoice", invoice_id=invoice_id))
 
 @invoice_blueprint.route("/submit_invoice/<int:invoice_id>/")
 @login_required
@@ -200,7 +190,7 @@ def submit_invoice(invoice_id):
     for product in invoice.invoice_products:
         update_quantity(product.product_idx, product.quantity)
     flash(f"Invoice #{invoice_id} was submitted successfully", "success")
-    return redirect(url_for("main.index"))
+    return redirect(url_for("invoice.invoice", invoice_id=invoice_id))
 
 
 @invoice_blueprint.route("/invoices/<int:invoice_id>/edit/", methods=("GET", "POST"))
@@ -305,3 +295,13 @@ def print(invoice_id):
         flash("Invoice has no customer, please add a customer first", "danger")
         return redirect(url_for("invoice.invoice", invoice_id=invoice_id))
     return render_template("invoices/pdf_template.html", invoice=invoice, products=products)
+
+
+
+def validate_name(name):
+    if not name or not re.match(r"^[a-zA-Z0-9_\s]+$", name) or name == "":
+        return False
+    else:
+        if name == "" or re.match(r"\s+", name):
+            return False
+    return True
