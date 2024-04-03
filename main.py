@@ -46,7 +46,7 @@ def category(category_id):
 @login_required
 def product(product_id):
     product = Product.query.get_or_404(product_id)
-    return render_template("product.html", product=product)
+    return render_template("products/product.html", product=product)
 
 
 @main.route("/uploads/<filename>")
@@ -101,7 +101,7 @@ def create():
         db.session.commit()
 
         return redirect(url_for("main.index"))
-    return render_template("create.html")
+    return render_template("products/create.html")
 
 
 @main.route("/<int:product_id>/edit/", methods=("GET", "POST"))
@@ -137,7 +137,7 @@ def edit(product_id):
         db.session.commit()
 
         return redirect(url_for("main.index"))
-    return render_template("edit.html", product=product)
+    return render_template("products/edit.html", product=product)
 
 
 @main.route("/about/")
@@ -159,4 +159,4 @@ def delete(product_id):
 @login_required
 def table():
     products = Product.query.all()
-    return render_template("table.html", products=products)
+    return render_template("products/table.html", products=products)
