@@ -13,9 +13,8 @@ from flask import (
 from werkzeug.utils import secure_filename
 from flask_login import login_required
 import logging
-from customer import customers
-from data import Product, InvoiceProduct, Invoice, User, Image, Category, Customer, db
-from images import upload_image, delete_image, deliver_image
+from data import Product, InvoiceProduct, Invoice, Image, Category, Customer, db
+from images import upload_image
 
 main = Blueprint("main", __name__)
 
@@ -163,7 +162,7 @@ def table():
     return render_template("table.html", products=products)
 
 
-@main.route(f"/new_invoice/", methods=("POST",))
+@main.route("/new_invoice/", methods=("POST",))
 @login_required
 def new_invoice():
     if request.method == "POST":
@@ -341,7 +340,7 @@ def edit_invoice(invoice_id):
             product_idx=changed_product_id
         ).first()
         original_product = Product.query.get_or_404(changed_product.product_idx)
-        requested_quantity = int(request.form[f"quantity"])
+        requested_quantity = int(request.form["quantity"])
         if requested_quantity > original_product.quantity + changed_product.quantity:
             flash(
                 f"Not enough {original_product.title} in stock, please enter a smaller quantity",

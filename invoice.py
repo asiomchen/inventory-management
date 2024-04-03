@@ -1,16 +1,12 @@
 from flask import (
     render_template,
-    request,
     url_for,
     redirect,
-    send_from_directory,
     Blueprint,
-    current_app,
     flash,
 )
 from flask_login import login_required
-from customer import customers
-from data import db, Invoice, InvoiceProduct
+from data import Invoice, InvoiceProduct
 
 
 invoice = Blueprint("invoice", __name__)

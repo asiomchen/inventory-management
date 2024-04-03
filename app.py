@@ -3,12 +3,6 @@ import random
 from venv import logger
 from flask import (
     Flask,
-    render_template,
-    request,
-    url_for,
-    redirect,
-    send_from_directory,
-    flash,
 )
 from flask_login import LoginManager
 from werkzeug.security import generate_password_hash
@@ -16,8 +10,6 @@ from utils import generate_random_image
 from data import (
     db,
     Product,
-    InvoiceProduct,
-    Invoice,
     User,
     Image,
     Category,
@@ -29,7 +21,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 from main import main
-from images import upload_image, delete_image, deliver_image
+from images import upload_image, deliver_image
 from auth import auth as auth_blueprint
 from customer import customer as customer_blueprint
 from invoice import invoice as invoice_blueprint

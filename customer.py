@@ -1,12 +1,9 @@
-import email
 from flask import (
     render_template,
     request,
     url_for,
     redirect,
-    send_from_directory,
     Blueprint,
-    current_app,
     flash,
 )
 from flask_login import login_required
