@@ -246,6 +246,9 @@ def edit_invoice(invoice_id):
         flash("Invoice updated", "success")
         return redirect(url_for("invoice.invoice", invoice_id=invoice_id))
     if request.method == "GET":
+        if invoice.status == "closed":
+            flash("Invoice is closed and cannot be edited", "danger")
+            return redirect(url_for("invoice.invoice", invoice_id=invoice_id))
         return render_template("invoices/edit.html", invoice=invoice, products=products)
 
 
