@@ -19,6 +19,7 @@
         <input type="text" class="form-control" name="new_name" placeholder="New invoice name">
         <button type="submit" class="btn btn-primary">Rename</button>
     </div>
+</form>
 <div class="table-container">
     <div class="table-responsive">
     <table id="data" class="table table-striped table-bordered">
@@ -44,7 +45,7 @@
                     <td>{{ product.purchase_price }}</td>
                     <td>{{ product.sale_price }}</td>
                     <td>
-                        <form method="post" enctype="multipart/form-data" class="form">
+                        <form method="post" enctype="multipart/form-data" class="form" action="{{ url_for('invoice.edit_invoice', invoice_id=invoice.idx) }}">
                             <div class="input-group-text mb-3 w-50">
                             <input type="text" class="form-control" name="quantity" value="{{ product.quantity }}" placeholder="Quantity">
                             <input type="hidden" name="product_id" value="{{ product.product.idx }}">

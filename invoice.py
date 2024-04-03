@@ -174,10 +174,10 @@ def rename(invoice_id):
         new_name = new_name.strip()
         if new_name == "" or re.match(r"\s+", new_name):
             flash("Please enter a valid invoice name", "danger")
-            return redirect(url_for("invoice.invoice", invoice_id=invoice_id))
+            return redirect(url_for("invoice.edit_invoice", invoice_id=invoice_id))
         elif Invoice.query.filter_by(name=new_name).first():
             flash("Invoice with this name already exists", "danger")
-            return redirect(url_for("invoice.invoice", invoice_id=invoice_id))
+            return redirect(url_for("invoice.edit_invoice", invoice_id=invoice_id))
     invoice.name = new_name
     db.session.merge(invoice)
     db.session.commit()
