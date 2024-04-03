@@ -124,7 +124,7 @@ def add2invoice(product_id):
     db.session.add(invoice_product)
     db.session.commit()
     flash(f"{product.title} added to invoice #{invoice_id}", "success")
-    return redirect(url_for("invoice.table"))
+    return redirect(url_for("main.table"))
 
 
 @invoice_blueprint.route("/invoice/<int:invoice_id>/")
@@ -177,7 +177,7 @@ def submit_invoice(invoice_id):
     for product in invoice.invoice_products:
         update_quantity(product.product_idx, product.quantity)
     flash(f"Invoice #{invoice_id} was submitted successfully", "success")
-    return redirect(url_for("invoice.index"))
+    return redirect(url_for("main.index"))
 
 
 @invoice_blueprint.route("/invoices/<int:invoice_id>/edit/", methods=("GET", "POST"))
@@ -224,7 +224,9 @@ def edit_invoice(invoice_id):
         )
         invoice.total_sale_price = sum([product.sale_price for product in products])
         invoice.total_profit = sum([product.profit for product in products])
-        invoice.customer_price = invoice.total_sale_price * (1 + invoice.tax_rate / 100)
+        invoice.customer_price = sum([product.sale_price * 
+                                      (1 + product.product.category.tax_rate / 100)
+                                       for product in products])
         db.session.merge(invoice)
         db.session.commit()
         flash("Invoice updated", "success")
