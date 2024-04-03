@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="title display-2 text-center mt-0">{% block title %} #{{ invoice.idx }} {{ invoice.name }} {% endblock %}</h1>
+<hr>
+<style>
+    .table-container {
+        margin: 20px;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+</style>
+<div class="container">
+{% if invoice.customer %}
+    <h3>Customer: <a href="#">{{ invoice.customer.name }}</a></h3>
+{% else %}
+    <h3>Customer: Not assigned</a></h3>
+{% endif %}
+{% if invoice.status == 'closed' %}
+
+{% else %}
+<form method="POST" action="{{ url_for('invoice.assign_customer', invoice_id=invoice.idx) }}">
+    <div class="input-group-text mb-3 w-50">
+        <select class="form-select" name="customer_id">
+            {% for customer in customers %}
+                <option value="{{ customer.idx }}">{{ customer.name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary">Assign customer</button>
+    </div>
+{% endif %}
+</form>
+</div>
+<div class="table-container">
+    <div class="table-responsive">
+    <table id="data" class="table table-striped table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th data-data="Title" data-sort="true">Title</th>
+                <th data-data="weight" data-sort="true">Weight (kg)</th>
+                <th data-data="purchase_price" data-sort="true">Purchase price ($)</th>
+                <th data-data="sale_price" data-sort="true">Sale price ($)</th>
+                <th data-data="quantity" data-sort="true">Quantity</th>
+                <th data-data="tax_rate" data-sort="true">Tax rate (%)</th>
+                <th data-data="profit" data-sort="true">Profit ($)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+                <tr>
+                    <td>{{ product.product.title }}</td>
+                    <td>{{ product.weight }}</td>
+                    <td>{{ product.purchase_price }}</td>
+                    <td>{{ product.sale_price }}</td>
+                    <td>{{ product.quantity }}</td>
+                    <td>{{ '%i'|format(product.product.category.tax_rate) }}</td>
+                    <td>{{ product.profit }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+<div class="container align-items-right text-right shadow-lg p-2 mb-2 mt-1 bg-body rounded">
+    <h4 class="text-right">Total profit: {{ invoice.total_profit }} $</h4>
+    <h4 class="text-right">Total weight: {{ '%0.2f'|format(invoice.total_weight) }} kg</h4>
+    <h4 class="text-right">Total net price: {{ '%0.2f'|format(invoice.total_sale_price) }} $</h4>
+    <h4 class="text-right">To pay: {{ '%0.2f'|format(invoice.customer_price) }} $</h4>
+    
+    {% set status_class = 'bg-success' if invoice.status == 'closed' else 'bg-danger' %}
+    <h4 class="text-right">Status: <span class="badge {{ status_class }}">{{ 'Closed' if invoice.status == 'closed' else 'Open' }}</span></h4>
+    
+    {% if invoice.status != 'closed' %}
+        <a href="{{ url_for('invoice.submit_invoice', invoice_id=invoice.idx) }}" class="btn btn-primary">Submit invoice</a>
+    {% endif %}
+</div>
+<div class="container align-items-right text-right shadow-lg p-2 mb-2 mt-1 bg-body rounded">
+    <a href="{{ url_for('invoice.print', invoice_id=invoice.idx) }}" class="btn btn-primary">Export invoice</a>
+    <a href="{{ url_for('invoice.edit_invoice', invoice_id=invoice.idx) }}" class="btn btn-warning">Edit invoice</a>
+    <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Back to home</a>
+</div>
+</div>
+{% endblock %}

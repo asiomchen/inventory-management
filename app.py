@@ -24,7 +24,7 @@ from main import main
 from images import upload_image, deliver_image
 from auth import auth as auth_blueprint
 from customer import customer as customer_blueprint
-from invoice import invoice as invoice_blueprint
+from invoice import invoice_blueprint
 from pricing import pricing as pricing_blueprint
 import logging
 import sys

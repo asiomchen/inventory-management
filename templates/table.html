@@ -58,7 +58,7 @@
                         </details>
                     </td>
                     <td>
-                        <form action="{{ url_for('main.add2invoice', product_id=product.idx) }}" method="post">
+                        <form action="{{ url_for('invoice.add2invoice', product_id=product.idx) }}" method="post">
                             <div class="input-group-text">
                                 <input type="number" name="quantity" value="1" min="1" max="{{ product.quantity }}" class="form-control" style="width: 100px;"/>
                                 <div class="input-group-append">
