@@ -79,7 +79,7 @@ def create_app():
             )
             db.session.add(pricing)
             db.session.commit()
-        if not Product.query.all():
+        if not Product.query.all() and os.environ.get("APP_ENV") is not None:
             for i in range(2):
                 weight = round(random.random(), 2)
                 purchase_price = random.randint(1, 100)
