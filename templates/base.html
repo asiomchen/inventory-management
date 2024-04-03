@@ -22,17 +22,20 @@
                   Products
                 </a>
                 <ul class="dropdown-menu ml-auto" aria-labelledby="navbarDropdown">
+                  <li><a class="dropdown-item" href="{{ url_for('main.create') }}">New product</a></li>
+                  <li><a class="dropdown-item" href="{{ url_for('main.table') }}">Table view</a></li>
+                </ul>
+              </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Categories
+                </a>
+                <ul class="dropdown-menu ml-auto" aria-labelledby="navbarDropdown">
                   <li><a class="dropdown-item" href="{{ url_for('main.index') }}">All products</a>
                     {% for category in categories %}
                     <li><a class="dropdown-item" href="{{ url_for('main.category', category_id=category.idx) }}">{{ category.name }}</a></li>
                     {% endfor %}
                 </ul>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('main.table') }}">Table view</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('main.create') }}">Create Product</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('pricing.pricings') }}">Pricings</a>
