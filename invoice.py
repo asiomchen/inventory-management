@@ -161,6 +161,29 @@ def active_invoice():
     return redirect(url_for("invoice.invoice", invoice_id=invoice.idx))
 
 
+@invoice_blueprint.route("/rename_invoice/<int:invoice_id>/", methods=("POST",))
+@login_required
+def rename(invoice_id):
+    invoice = Invoice.query.get_or_404(invoice_id)
+    old_name = invoice.name
+    new_name = request.form["new_name"]
+    if not new_name or not re.match(r"^[a-zA-Z0-9_\s]+$", new_name) or new_name == "":
+        flash("Please enter a valid invoice name", "danger")
+        return redirect(url_for("invoice.invoice", invoice_id=invoice_id))
+    else:
+        new_name = new_name.strip()
+        if new_name == "" or re.match(r"\s+", new_name):
+            flash("Please enter a valid invoice name", "danger")
+            return redirect(url_for("invoice.invoice", invoice_id=invoice_id))
+        elif Invoice.query.filter_by(name=new_name).first():
+            flash("Invoice with this name already exists", "danger")
+            return redirect(url_for("invoice.invoice", invoice_id=invoice_id))
+    invoice.name = new_name
+    db.session.merge(invoice)
+    db.session.commit()
+    flash(f"Invoice #{invoice_id} {old_name} renamed to {new_name}", "success")
+    return redirect(url_for("invoice.invoice", invoice_id=invoice_id))
+
 @invoice_blueprint.route("/submit_invoice/<int:invoice_id>/")
 @login_required
 def submit_invoice(invoice_id):
@@ -216,6 +239,7 @@ def edit_invoice(invoice_id):
             db.session.merge(changed_product)
             if changed_product.quantity == 0:
                 db.session.delete(changed_product)
+                logging.debug(f"Product {changed_product.product.title} deleted")
             products = InvoiceProduct.query.filter_by(invoice_idx=invoice_id)
 
         invoice.total_weight = sum([product.weight for product in products])

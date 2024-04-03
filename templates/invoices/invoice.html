@@ -13,7 +13,7 @@
 </style>
 <div class="container">
 {% if invoice.customer %}
-    <h3>Customer: <a href="#">{{ invoice.customer.name }}</a></h3>
+    <h3>Customer: <a href="/customers/{{invoice.customer.idx}}">{{ invoice.customer.name }}</a></h3>
 {% else %}
     <h3>Customer: Not assigned</a></h3>
 {% endif %}

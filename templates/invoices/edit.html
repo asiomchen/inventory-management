@@ -14,6 +14,11 @@
         overflow-x: auto;
     }
 </style>
+<form method="POST" action="{{ url_for('invoice.rename', invoice_id=invoice.idx) }}">
+    <div class="input-group-text mb-3 w-25 d-inline-block ms-3">
+        <input type="text" class="form-control" name="new_name" placeholder="New invoice name">
+        <button type="submit" class="btn btn-primary">Rename</button>
+    </div>
 <div class="table-container">
     <div class="table-responsive">
     <table id="data" class="table table-striped table-bordered">
