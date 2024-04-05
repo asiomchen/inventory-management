@@ -8,9 +8,15 @@
     {% endif %}
     <hr>
     <form method="POST" action="/new_invoice">
-        <div class="input-group-text mb-3 w-50">
-            <input type="text" class="form-control" name="invoice_name" placeholder="Invoice name">
-            <button type="submit" class="btn btn-primary">Create new invoice</button>
+        <div class="mb-3 w-50">
+            <div class="row">
+                <div class="col-12 col-sm-8">
+                    <input type="text" class="form-control" name="invoice_name" placeholder="New invoice name">
+                </div>
+                <div class="col-12 col-sm-4">
+                    <button type="submit" class="btn btn-primary mt-2 mt-sm-0 w-100">New invoice</button>
+                </div>
+            </div>
         </div>
     </form>
     <div class="row">
