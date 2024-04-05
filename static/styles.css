@@ -42,6 +42,11 @@ li {
     padding: 0px;
 }
 
+.custom-li {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+}
+
 .btn-custom {
     width: 100%;
 }

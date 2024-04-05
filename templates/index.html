@@ -11,25 +11,35 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {% for product in products %}
             <div class="col mb-3">
-                <div class="card shadow-lg rounded">
+                <div class="card shadow-lg rounded h-100">
                     <img src="{{ deliver_image(product.photo.public_id, 390, 390) }}" class="card-img-top" alt="{{ product.title }}">
                     <div class="card-body d-flex flex-column justify-content-between">
                         <div class="text-center mb-0 mt-auto">
                             <a href="{{ url_for('main.category', category_id=product.category.idx) }}"  class="badge bg-dark">{{ product.category.name }}</a>
                             <h5 class="card-title text-truncate mb-0">{{ product.title }}</h5>
                         </div>
-                        <p class="card-text mt-auto">
+                        <p class="card-text mt-auto mb-0">
                             <details name="description">
                                 <summary>Description</summary>
                                 <p>{{ product.description }}</p>
                             </details>
                         </p>
+                        <div class="mt-auto mb-3 text-center">
+                            <form action="{{ url_for('invoice.add2invoice', product_id=product.idx) }}" method="post">
+                                <div class="input-group-text">
+                                    <input type="number" name="quantity" value="1" min="1" max="{{ product.quantity }}" class="form-control"/>
+                                    <div class="input-group-append">
+                                        <button type="submit" class="btn btn-success">Add to Invoice</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
                         <ul class="list-group list-group-flush">
-                            <li class="list-group-item">Weight: {{ product.weight }} kg</li>
-                            <li class="list-group-item">Purchase Price: ${{ product.purchase_price }}</li>
-                            <li class="list-group-item">Sale Price: ${{ product.sale_price }}</li>
-                            <li class="list-group-item">Quantity: {{ product.quantity }}</li>
-                            <li class="list-group-item">Profit: ${{ product.profit }}</li>
+                            <li class="list-group-item custom-li">Weight: {{ product.weight }} kg</li>
+                            <li class="list-group-item custom-li">Purchase Price: ${{ product.purchase_price }}</li>
+                            <li class="list-group-item custom-li">Sale Price: ${{ product.sale_price }}</li>
+                            <li class="list-group-item custom-li">Quantity: {{ product.quantity }}</li>
+                            <li class="list-group-item custom-li">Profit: ${{ product.profit }}</li>
                         </ul>
                         <div class="mt-auto text-center">
                             <a href="{{ url_for('main.product', product_id=product.idx)}}" class="btn btn-primary">Details</a>
