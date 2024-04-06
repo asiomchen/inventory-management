@@ -43,7 +43,7 @@
     $(document).ready(function() {
         $('#data').DataTable({
             ajax: "/api/products",
-            pageLength: 2,
+            pageLength: 10,
             serverSide: true,
             columns: [
                 { data: "photo", render: function(data, type, row) {
