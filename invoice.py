@@ -1,3 +1,4 @@
+import json
 from flask import (
     render_template,
     url_for,
@@ -5,6 +6,7 @@ from flask import (
     Blueprint,
     flash,
     request,
+    jsonify
 )
 from flask_login import login_required
 from data import Invoice, InvoiceProduct, Product, Customer, db
@@ -258,6 +260,56 @@ def edit_invoice(invoice_id):
 def invoices():
     invoices = Invoice.query.all()
     return render_template("invoices/invoices.html", invoices=invoices)
+
+@invoice_blueprint.route("/api/invoices")
+def get_invoices():
+    query = Invoice.query
+    search = request.args.get('search[value]')
+    if search:
+        query = query.filter(db.or_(
+            Invoice.name.like(f'%{search}%'),
+            Invoice.date.like(f'%{search}%'),
+            Invoice.status.like(f'%{search}%'),
+        ))
+    total_filtered = query.count()
+
+    # sorting
+    order = []
+    i = 0
+    while True:
+        col_index = request.args.get(f'order[{i}][column]')
+        if col_index is None:
+            break
+        col_name = request.args.get(f'columns[{col_index}][data]')
+
+        descending = request.args.get(f'order[{i}][dir]') == 'desc'
+        col = getattr(Invoice, col_name)
+        if descending:
+            col = col.desc()
+        order.append(col)
+        i += 1
+    if order:
+        query = query.order_by(*order)
+
+    start = int(request.args.get('start', type=int))
+    length = int(request.args.get('length', type=int))
+    query = query.offset(start).limit(length)
+    data = []
+    for invoice in query:
+        data.append({
+            "id": invoice.idx,
+            "name": invoice.name,
+            "date": invoice.date.strftime('%Y-%m-%d'),
+            "total_profit": str(invoice.total_profit) + "$",
+            "total_weight": str('%.2f' % invoice.total_weight) + "kg",
+            "status": 'Closed' if invoice.status == 'closed' else 'Open',
+            "is_active": invoice.is_active
+        })
+    return jsonify({"data": data,
+                    "recordsTotal": total_filtered,
+                    "recordsFiltered": total_filtered,
+                    "draw": request.args.get('draw', type=int),
+                    })
 
 
 @invoice_blueprint.route("/invoices/customer=<int:customer_id>/")

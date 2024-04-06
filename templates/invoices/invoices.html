@@ -32,7 +32,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for invoice in invoices %}
+                <!-- {% for invoice in invoices %}
                 {% set status_class = 'bg-success' if invoice.status == 'closed' else 'bg-danger' %}
                     <tr>
                         <td>
@@ -48,7 +48,7 @@
                                 <button type="submit" class="btn {{ 'bg-success' if invoice.is_active else 'bg-danger' }} text-white fw-bold">{{ 'Active' if invoice.is_active else 'Set Active' }}</button>
                             </form>
                     </tr>
-                {% endfor %}
+                {% endfor %} -->
             </tbody>
         </table>
     </div>
@@ -58,7 +58,50 @@
 <script>
     $(document).ready(function() {
         $('#data').DataTable({
-            "pageLength": 2
+            ajax: "/api/invoices",
+            serverSide: true,
+            pageLength: 5,
+            columns: [
+                { 
+                    data: "name",
+                    render: function(data, type, row, meta){
+                        if(type === 'display'){
+                            data = '<a href="/invoice/' + row.id + '">' + data + '</a>';
+                        }
+                        return data;
+                    }
+                },
+                { data: "date" },
+                { data: "total_profit" },
+                { data: "total_weight" },
+                { 
+                    data: "status",
+                    render: function(data, type, row, meta){
+                        if(type === 'display'){
+                            if(data == 'Closed'){
+                                data = '<span class="badge bg-success">' + data + '</span>';
+                            } else {
+                                data = '<span class="badge bg-danger">' + data + '</span>';
+                            }
+                        }
+                        return data;
+                    }
+                },
+                { 
+                    data: "is_active",
+                    render: function(data, type, row, meta){
+                        if(type === 'display'){
+                            var buttonClass = data ? 'bg-success' : 'bg-danger';
+                            var buttonText = data ? 'Active' : 'Set Active';
+                            data = '<form method="post" enctype="multipart/form-data" class="form" action="/change_active_status/">' +
+                                   '<input type="hidden" name="invoice_id" value="' + row.id + '">' +
+                                   '<button type="submit" class="btn ' + buttonClass + ' text-white fw-bold">' + buttonText + '</button>' +
+                                   '</form>';
+                        }
+                        return data;
+                    }
+                }
+            ]
         });
     });
 </script>
