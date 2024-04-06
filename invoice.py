@@ -1,4 +1,3 @@
-import json
 from flask import (
     render_template,
     url_for,
@@ -53,8 +52,8 @@ def change_active_status():
         invoice.is_active = True
         db.session.merge(invoice)
         db.session.commit()
-        flash(f"Invoice #{invoice_id} is now active", "success")
-        return redirect(url_for("invoice.invoices"))
+        flash(f"Invoice '{invoice.name}' is now active", "success")
+        return redirect(request.referrer)
 
 
 @invoice_blueprint.route("/add2invoice/<int:product_id>/", methods=("POST",))
