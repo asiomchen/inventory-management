@@ -3,7 +3,7 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 from typing import Tuple
-from flask import url_for, current_app
+from flask import current_app
 from jinja2 import runtime
 
 config = cloudinary.config(secure=True)
