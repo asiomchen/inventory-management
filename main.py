@@ -194,10 +194,13 @@ def get_products():
         if col_index is None:
             break
         col_name = request.args.get(f'columns[{col_index}][data]')
-        if col_name in ['photo']:
+        logging.info(f"Sorting by {col_name}")
+        if col_name in ['photo', 'add2cart']:
             col_name = 'title'
+        if col_name == 'category':
+            col_name = 'category_idx'
         descending = request.args.get(f'order[{i}][dir]') == 'desc'
-        col = getattr(Product(), col_name)
+        col = getattr(Product, col_name)
         if descending:
             col = col.desc()
         order.append(col)
