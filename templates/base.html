@@ -62,9 +62,15 @@
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                 {% for category, message in messages %}
-                <div class="container alert alert-{{ category }} text-center mt-2 mb-2 ml-auto mr-auto" role="alert">
-                 {{ message }}
-                </div>
+                <div class="px-2 px-sm-0">
+                  <div class="row justify-content-center">
+                      <div class="col-12 col-lg-6 col-md-8">
+                          <div class="alert alert-{{ category }} text-center mt-2 mb-2" role="alert">
+                            {{ message }}
+                          </div>
+                      </div>
+                  </div>
+              </div>
                 {% endfor %}
                 {% endif %}
                 {% endwith %}
@@ -79,6 +85,9 @@
 </body>
 <footer>
     <hr>
-    <p class="text-center"> &copy;  <script>document.write(/\d{4}/.exec(Date())[0])</script> by Anton S. </p>
+    <div class="container text-center mt-2 mb-2 ml-auto mr-auto">
+    <p class="text-center"> Hosted on <a href="https://railway.app?referralCode=0IjPN6">railway.app</a></p>
+    <p class="text-center"> &copy;  <script>document.write(/\d{4}/.exec(Date())[0])</script> by Anton S.</p>
+    </div>
 </footer>
 </html>

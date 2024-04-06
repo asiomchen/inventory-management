@@ -21,64 +21,17 @@
             <tr>
                 <th data-data="photo" data-sort="false">Photo</th>
                 <th data-data="title" data-sort="true">Title</th>
-                <th data-data="weight" data-sort="true">Weight (kg)</th>
+                <th data-data="category" data-sort="true">Category</th>
+                <th data-data="weight" data-sort="true">Weight (g)</th>
                 <th data-data="purchase_price" data-sort="true">Purchase price ($)</th>
                 <th data-data="sale_price" data-sort="true">Sale price ($)</th>
                 <th data-data="quantity" data-sort="true">Quantity</th>
                 <th data-data="profit" data-sort="true">Profit ($)</th>
                 <th data-data="description" data-sort="false">Description</th>
                 <th data-data="add2cart" data-sort="false" data-searchable="false"></th>
-                <th data-data="edit-delete" data-sort="false" data-searchable="false"></th>
             </tr>
         </thead>
         <tbody>
-            {% for product in products %}
-                <tr>
-                    <td>
-                        {% if product.photo != 'No photo' %}
-                            <img src="{{ deliver_image(product.photo.public_id, 100, 100) }}" alt="{{ product.title }}" style="width: 100px; height: 100px;"/>
-                        {% else %}
-                            No photo
-                        {% endif %}
-                    </td>
-                    <td>
-                        <a href="{{ url_for('main.product', product_id=product.idx) }}" class="text-truncate" style="max-width: 150px; display: inline-block;">
-                            {{ product.title }}
-                        </a>
-                    </td>
-                    <td>{{ product.weight }}</td>
-                    <td>{{ product.purchase_price }}</td>
-                    <td>{{ product.sale_price }}</td>
-                    <td>{{ product.quantity }}</td>
-                    <td>{{ product.profit }}</td>
-                    <td class="description">
-                        <details name="description">
-                            <summary style="font-weight: bold">Description</summary>
-                            <p>{{ product.description }}</p>
-                        </details>
-                    </td>
-                    <td>
-                        <form action="{{ url_for('invoice.add2invoice', product_id=product.idx) }}" method="post">
-                            <div class="input-group-text">
-                                <input type="number" name="quantity" value="1" min="1" max="{{ product.quantity }}" class="form-control" style="width: 100px;"/>
-                                <div class="input-group-append">
-                                    <button type="submit" class="btn btn-success">Add to Invoice</button>
-                                </div>
-                            </div>
-                        </form>
-                    </td>
-                    <td>
-                        <div class="btn-group" role="group" aria-label="Edit and Delete">
-                            <form action="{{ url_for('main.edit', product_id=product.idx) }}" method="get">
-                                <button type="submit" class="btn btn-primary">Edit</button>
-                            </form>
-                            <form action="{{ url_for('main.delete', product_id=product.idx) }}" method="post">
-                                <button type="submit" class="btn btn-danger">Delete</button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-            {% endfor %}
         </tbody>
     </table>
 </div>
@@ -89,10 +42,31 @@
 <script>
     $(document).ready(function() {
         $('#data').DataTable({
-            order: [[1, 'asc']], // Specify default sorting column (e.g., Title in this case)
-            columnDefs: [
-                { orderable: false, targets: [0, 8] }, // Disable sorting for specific columns (Photo, Description, Edit, Delete)
-                { searchable: false, targets: [8] } // Disable searching for Edit and Delete columns
+            ajax: "/api/products",
+            pageLength: 2,
+            columns: [
+                { data: "photo", render: function(data, type, row) {
+                    if (data != 'No photo') {
+                        return `<img src="${data}" alt="${row.title}" style="width: 100px; height: 100px;"/>`;
+                    } else {
+                        return 'No photo';
+                    }
+                }},
+                { data: "title", render: function(data, type, row) {
+                    return `<a href="/${row.id}" class="text-truncate" style="max-width: 150px; display: inline-block;">${data}</a>`;
+                }},
+                { data: "category"},
+                { data: "weight" },
+                { data: "purchase_price" },
+                { data: "sale_price" },
+                { data: "quantity" },
+                { data: "profit" },
+                { data: "description", render: function(data, type, row) {
+                    return `<details name="description"><summary style="font-weight: bold">Description</summary><p>${data}</p></details>`;
+                }},
+                { data: "add2cart", render: function(data, type, row) {
+                    return `<form action="/add2invoice/${row.id}" method="post"><div class="input-group-text"><input type="number" name="quantity" value="1" min="1" max="${row.quantity}" class="form-control" style="width: 100px;"/><div class="input-group-append"><button type="submit" class="btn btn-success">Add to Invoice</button></div></div></form>`;
+                }}
             ]
         });
     });

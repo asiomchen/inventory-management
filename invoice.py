@@ -5,6 +5,7 @@ from flask import (
     Blueprint,
     flash,
     request,
+    jsonify
 )
 from flask_login import login_required
 from data import Invoice, InvoiceProduct, Product, Customer, db
@@ -20,10 +21,10 @@ def new_invoice():
         name = request.form["invoice_name"].strip()
         if not validate_name(name):
             flash("Please enter a valid name", "danger")
-            return redirect(url_for("invoice.new_invoice"))
+            return redirect(request.referrer)
         elif Invoice.query.filter_by(name=name).first():
             flash("Invoice with this name already exists", "danger")
-            return redirect(url_for("invoice.new_invoice"))
+            return redirect(request.referrer)
         invoice = Invoice(name=name)
         current_active_invoice = Invoice.query.filter_by(is_active=True).first()
         if current_active_invoice:
@@ -32,8 +33,7 @@ def new_invoice():
         db.session.add(invoice)
         db.session.commit()
         flash(f"New invoice {invoice.name} created", "success")
-        return redirect(url_for("invoice.invoices"))
-    return render_template("new_invoice.html")
+        return redirect(request.referrer)
 
 
 @invoice_blueprint.route("/change_active_status/", methods=("POST",))
@@ -52,8 +52,8 @@ def change_active_status():
         invoice.is_active = True
         db.session.merge(invoice)
         db.session.commit()
-        flash(f"Invoice #{invoice_id} is now active", "success")
-        return redirect(url_for("invoice.invoices"))
+        flash(f"Invoice '{invoice.name}' is now active", "success")
+        return redirect(request.referrer)
 
 
 @invoice_blueprint.route("/add2invoice/<int:product_id>/", methods=("POST",))
@@ -118,8 +118,10 @@ def add2invoice(product_id):
 
     db.session.add(invoice_product)
     db.session.commit()
-    flash(f"{product.title} added to invoice #{invoice_id}", "success")
-    return redirect(url_for("main.table"))
+    invoice_name = Invoice.query.get(invoice_id).name
+    flash(f"{product.title} added to invoice '{invoice_name}'", "success")
+    # redirect to the same page where the form was submitted
+    return redirect(request.referrer)
 
 
 @invoice_blueprint.route("/invoice/<int:invoice_id>/")
@@ -252,22 +254,75 @@ def edit_invoice(invoice_id):
         return render_template("invoices/edit.html", invoice=invoice, products=products)
 
 
-@invoice_blueprint.route("/invoices/")
+@invoice_blueprint.route("/invoices")
 @login_required
 def invoices():
-    invoices = Invoice.query.all()
-    return render_template("invoices/invoices.html", invoices=invoices)
+    customer_id = request.args.get("customer_id")
+    customer = Customer.query.get(customer_id)
+    if customer:
+        return render_template("invoices/invoices.html", customer=customer)
+    return render_template("invoices/invoices.html")
 
 
-@invoice_blueprint.route("/invoices/customer=<int:customer_id>/")
+@invoice_blueprint.route("/api/invoices")
 @login_required
-def invoices_by_customer(customer_id):
-    invoices = Invoice.query.filter_by(customer_idx=customer_id).all()
-    customer = Customer.query.get_or_404(customer_id)
-    return render_template("invoices/invoices.html", invoices=invoices, customer=customer)
+def get_invoices():
+    query = Invoice.query
+    customer_id = request.args.get("customer_id")
+    if customer_id:
+        customer = Customer.query.get_or_404(customer_id)
+        query = query.filter_by(customer_idx=customer.idx)
+    search = request.args.get('search[value]')
+    if search:
+        query = query.filter(db.or_(
+            Invoice.name.like(f'%{search}%'),
+            Invoice.date.like(f'%{search}%'),
+            Invoice.status.like(f'%{search}%'),
+        ))
+    total_filtered = query.count()
+
+    # sorting
+    order = []
+    i = 0
+    while True:
+        col_index = request.args.get(f'order[{i}][column]')
+        if col_index is None:
+            break
+        col_name = request.args.get(f'columns[{col_index}][data]')
+
+        descending = request.args.get(f'order[{i}][dir]') == 'desc'
+        col = getattr(Invoice, col_name)
+        if descending:
+            col = col.desc()
+        order.append(col)
+        i += 1
+    if order:
+        query = query.order_by(*order)
+
+    start = int(request.args.get('start', type=int))
+    length = int(request.args.get('length', type=int))
+    query = query.offset(start).limit(length)
+    data = []
+    for invoice in query:
+        data.append({
+            "id": invoice.idx,
+            "name": invoice.name,
+            "date": invoice.date.strftime('%Y-%m-%d'),
+            "total_profit": str(invoice.total_profit) + "$",
+            "total_weight": str('%.2f' % invoice.total_weight) + "kg",
+            "status": 'Closed' if invoice.status == 'closed' else 'Open',
+            "is_active": invoice.is_active
+        })
+    return jsonify({"data": data,
+                    "recordsTotal": total_filtered,
+                    "recordsFiltered": total_filtered,
+                    "draw": request.args.get('draw', type=int),
+                    })
+
 
 
 @invoice_blueprint.route("/invoices/<int:invoice_id>/assign_customer/", methods=["POST"])
+@login_required
 def assign_customer(invoice_id):
     invoice = Invoice.query.get_or_404(invoice_id)
     customer_id = int(request.form["customer_id"])

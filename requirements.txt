@@ -8,3 +8,4 @@ Werkzeug
 gunicorn
 python-dotenv
 sympy
+alembik

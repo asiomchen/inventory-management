@@ -8,9 +8,15 @@
     {% endif %}
     <hr>
     <form method="POST" action="/new_invoice">
-        <div class="input-group-text mb-3 w-50">
-            <input type="text" class="form-control" name="invoice_name" placeholder="Invoice name">
-            <button type="submit" class="btn btn-primary">Create new invoice</button>
+        <div class="mb-3 w-50">
+            <div class="row">
+                <div class="col-12 col-sm-8">
+                    <input type="text" class="form-control" name="invoice_name" placeholder="New invoice name">
+                </div>
+                <div class="col-12 col-sm-4">
+                    <button type="submit" class="btn btn-primary mt-2 mt-sm-0 w-100">New invoice</button>
+                </div>
+            </div>
         </div>
     </form>
     <div class="row">
@@ -26,23 +32,6 @@
                 </tr>
             </thead>
             <tbody>
-                {% for invoice in invoices %}
-                {% set status_class = 'bg-success' if invoice.status == 'closed' else 'bg-danger' %}
-                    <tr>
-                        <td>
-                            <a href="{{ url_for('invoice.invoice', invoice_id=invoice.idx) }}">{{ invoice.name }}</a>
-                        </td>
-                        <td>{{ invoice.date.strftime('%Y-%m-%d') }}</td>
-                        <td>{{ invoice.total_profit }}$</td>
-                        <td>{{ '%0.2f'|format(invoice.total_weight) }}kg</td>
-                        <td><span class="badge {{ status_class }}">{{ 'Closed' if invoice.status == 'closed' else 'Open' }}</span></td>
-                        <td>
-                            <form method="post" enctype="multipart/form-data" class="form" action="/change_active_status/">
-                                <input type="hidden" name="invoice_id" value="{{ invoice.idx }}">
-                                <button type="submit" class="btn {{ 'bg-success' if invoice.is_active else 'bg-danger' }} text-white fw-bold">{{ 'Active' if invoice.is_active else 'Set Active' }}</button>
-                            </form>
-                    </tr>
-                {% endfor %}
             </tbody>
         </table>
     </div>
@@ -52,6 +41,58 @@
 <script>
     $(document).ready(function() {
         $('#data').DataTable({
+            ajax: {
+                url: "/api/invoices",
+                data: function(d) {
+                    var params = new URLSearchParams(window.location.search);
+                    params.forEach(function(value, key) {
+                        d[key] = value;
+                    });
+                }
+            },
+            serverSide: true,
+            pageLength: 5,
+            columns: [
+                { 
+                    data: "name",
+                    render: function(data, type, row, meta){
+                        if(type === 'display'){
+                            data = '<a href="/invoice/' + row.id + '">' + data + '</a>';
+                        }
+                        return data;
+                    }
+                },
+                { data: "date" },
+                { data: "total_profit" },
+                { data: "total_weight" },
+                { 
+                    data: "status",
+                    render: function(data, type, row, meta){
+                        if(type === 'display'){
+                            if(data == 'Closed'){
+                                data = '<span class="badge bg-success">' + data + '</span>';
+                            } else {
+                                data = '<span class="badge bg-danger">' + data + '</span>';
+                            }
+                        }
+                        return data;
+                    }
+                },
+                { 
+                    data: "is_active",
+                    render: function(data, type, row, meta){
+                        if(type === 'display'){
+                            var buttonClass = data ? 'bg-success' : 'bg-danger';
+                            var buttonText = data ? 'Active' : 'Set Active';
+                            data = '<form method="post" enctype="multipart/form-data" class="form" action="/change_active_status/">' +
+                                   '<input type="hidden" name="invoice_id" value="' + row.id + '">' +
+                                   '<button type="submit" class="btn ' + buttonClass + ' text-white fw-bold">' + buttonText + '</button>' +
+                                   '</form>';
+                        }
+                        return data;
+                    }
+                }
+            ]
         });
     });
 </script>
