@@ -255,15 +255,24 @@ def edit_invoice(invoice_id):
         return render_template("invoices/edit.html", invoice=invoice, products=products)
 
 
-@invoice_blueprint.route("/invoices/")
+@invoice_blueprint.route("/invoices")
 @login_required
 def invoices():
-    invoices = Invoice.query.all()
-    return render_template("invoices/invoices.html", invoices=invoices)
+    customer_id = request.args.get("customer_id")
+    customer = Customer.query.get(customer_id)
+    if customer:
+        return render_template("invoices/invoices.html", customer=customer)
+    return render_template("invoices/invoices.html")
+
 
 @invoice_blueprint.route("/api/invoices")
+@login_required
 def get_invoices():
     query = Invoice.query
+    customer_id = request.args.get("customer_id")
+    if customer_id:
+        customer = Customer.query.get_or_404(customer_id)
+        query = query.filter_by(customer_idx=customer.idx)
     search = request.args.get('search[value]')
     if search:
         query = query.filter(db.or_(
@@ -312,15 +321,9 @@ def get_invoices():
                     })
 
 
-@invoice_blueprint.route("/invoices/customer=<int:customer_id>/")
-@login_required
-def invoices_by_customer(customer_id):
-    invoices = Invoice.query.filter_by(customer_idx=customer_id).all()
-    customer = Customer.query.get_or_404(customer_id)
-    return render_template("invoices/invoices.html", invoices=invoices, customer=customer)
-
 
 @invoice_blueprint.route("/invoices/<int:invoice_id>/assign_customer/", methods=["POST"])
+@login_required
 def assign_customer(invoice_id):
     invoice = Invoice.query.get_or_404(invoice_id)
     customer_id = int(request.form["customer_id"])

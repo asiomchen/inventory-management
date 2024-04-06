@@ -32,23 +32,6 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- {% for invoice in invoices %}
-                {% set status_class = 'bg-success' if invoice.status == 'closed' else 'bg-danger' %}
-                    <tr>
-                        <td>
-                            <a href="{{ url_for('invoice.invoice', invoice_id=invoice.idx) }}">{{ invoice.name }}</a>
-                        </td>
-                        <td>{{ invoice.date.strftime('%Y-%m-%d') }}</td>
-                        <td>{{ invoice.total_profit }}$</td>
-                        <td>{{ '%0.2f'|format(invoice.total_weight) }}kg</td>
-                        <td><span class="badge {{ status_class }}">{{ 'Closed' if invoice.status == 'closed' else 'Open' }}</span></td>
-                        <td>
-                            <form method="post" enctype="multipart/form-data" class="form" action="/change_active_status/">
-                                <input type="hidden" name="invoice_id" value="{{ invoice.idx }}">
-                                <button type="submit" class="btn {{ 'bg-success' if invoice.is_active else 'bg-danger' }} text-white fw-bold">{{ 'Active' if invoice.is_active else 'Set Active' }}</button>
-                            </form>
-                    </tr>
-                {% endfor %} -->
             </tbody>
         </table>
     </div>
@@ -58,7 +41,15 @@
 <script>
     $(document).ready(function() {
         $('#data').DataTable({
-            ajax: "/api/invoices",
+            ajax: {
+                url: "/api/invoices",
+                data: function(d) {
+                    var params = new URLSearchParams(window.location.search);
+                    params.forEach(function(value, key) {
+                        d[key] = value;
+                    });
+                }
+            },
             serverSide: true,
             pageLength: 5,
             columns: [
