@@ -9,6 +9,7 @@ from flask import (
     Blueprint,
     current_app,
     flash,
+    jsonify,
 )
 from werkzeug.utils import secure_filename
 from flask_login import login_required
@@ -169,3 +170,67 @@ def delete(product_id):
 def table():
     products = Product.query.all()
     return render_template("products/table.html", products=products)
+
+@main.route("/api/products/")
+@login_required
+def get_products():
+
+    query = Product.query
+    search = request.args.get('search[value]')
+    if search:
+        query = query.filter(db.or_(
+            Product.title.like(f'%{search}%'),
+            Product.description.like(f'%{search}%'),
+            Product.category.has(Category.name.like(f'%{search}%')),
+            Product.quantity.like(f'%{search}%'),
+        ))
+    total_filtered = query.count()
+
+    # sorting
+    order = []
+    i = 0
+    while True:
+        col_index = request.args.get(f'order[{i}][column]')
+        if col_index is None:
+            break
+        col_name = request.args.get(f'columns[{col_index}][data]')
+
+        descending = request.args.get(f'order[{i}][dir]') == 'desc'
+        col = getattr(Product, col_name)
+        if descending:
+            col = col.desc()
+        order.append(col)
+        i += 1
+    if order:
+        query = query.order_by(*order)
+
+
+    # Pagination
+    start = int(request.args.get("start", 0))
+    length = int(request.args.get("length", 10))
+    query = query.offset(start).limit(length)
+    data = []
+    for product in query:
+        data.append(
+            {   
+                "id": product.idx,
+                "title": product.title,
+                "description": product.description,
+                "quantity": product.quantity,
+                "weight": product.weight,
+                "purchase_price": product.purchase_price,
+                "sale_price": product.sale_price,
+                "profit": product.profit,
+                "category": product.category.name,
+                "photo": product.photo.url if product.photo else current_app.url_for("static", filename="no-photo.bmp"),
+            }
+        )
+    return jsonify(
+        {
+            "data": data,
+            "recordsTotal": total_filtered,
+            "recordsFiltered": total_filtered,
+        }
+    )
+
+
