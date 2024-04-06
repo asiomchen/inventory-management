@@ -20,10 +20,10 @@ def new_invoice():
         name = request.form["invoice_name"].strip()
         if not validate_name(name):
             flash("Please enter a valid name", "danger")
-            return redirect(url_for("invoice.new_invoice"))
+            return redirect(request.referrer)
         elif Invoice.query.filter_by(name=name).first():
             flash("Invoice with this name already exists", "danger")
-            return redirect(url_for("invoice.new_invoice"))
+            return redirect(request.referrer)
         invoice = Invoice(name=name)
         current_active_invoice = Invoice.query.filter_by(is_active=True).first()
         if current_active_invoice:
@@ -32,8 +32,7 @@ def new_invoice():
         db.session.add(invoice)
         db.session.commit()
         flash(f"New invoice {invoice.name} created", "success")
-        return redirect(url_for("invoice.invoices"))
-    return render_template("new_invoice.html")
+        return redirect(request.referrer)
 
 
 @invoice_blueprint.route("/change_active_status/", methods=("POST",))
