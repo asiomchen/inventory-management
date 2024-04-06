@@ -44,6 +44,7 @@
         $('#data').DataTable({
             ajax: "/api/products",
             pageLength: 2,
+            serverSide: true,
             columns: [
                 { data: "photo", render: function(data, type, row) {
                     if (data != 'No photo') {

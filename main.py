@@ -165,11 +165,10 @@ def delete(product_id):
     return redirect(url_for("main.index"))
 
 
-@main.route("/table/")
+@main.route("/table")
 @login_required
 def table():
-    products = Product.query.all()
-    return render_template("products/table.html", products=products)
+    return render_template("products/table.html")
 
 @main.route("/api/products/")
 @login_required
@@ -186,6 +185,7 @@ def get_products():
         ))
     total_filtered = query.count()
 
+    # Sorting
     # sorting
     order = []
     i = 0
@@ -194,17 +194,16 @@ def get_products():
         if col_index is None:
             break
         col_name = request.args.get(f'columns[{col_index}][data]')
-
+        if col_name in ['photo']:
+            col_name = 'title'
         descending = request.args.get(f'order[{i}][dir]') == 'desc'
-        col = getattr(Product, col_name)
+        col = getattr(Product(), col_name)
         if descending:
             col = col.desc()
         order.append(col)
         i += 1
     if order:
         query = query.order_by(*order)
-
-
     # Pagination
     start = int(request.args.get("start", 0))
     length = int(request.args.get("length", 10))
@@ -230,6 +229,7 @@ def get_products():
             "data": data,
             "recordsTotal": total_filtered,
             "recordsFiltered": total_filtered,
+            "draw": request.args.get("draw"),
         }
     )
 
