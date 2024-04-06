@@ -118,8 +118,10 @@ def add2invoice(product_id):
 
     db.session.add(invoice_product)
     db.session.commit()
-    flash(f"{product.title} added to invoice #{invoice_id}", "success")
-    return redirect(url_for("main.table"))
+    invoice_name = Invoice.query.get(invoice_id).name
+    flash(f"{product.title} added to invoice '{invoice_name}'", "success")
+    # redirect to the same page where the form was submitted
+    return redirect(request.referrer)
 
 
 @invoice_blueprint.route("/invoice/<int:invoice_id>/")
