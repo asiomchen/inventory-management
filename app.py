@@ -6,6 +6,7 @@ from flask import (
 )
 from flask_login import LoginManager
 from flask_migrate import Migrate
+from flask_bootstrap import Bootstrap5 as Bootstrap
 from werkzeug.security import generate_password_hash
 from utils import generate_random_image
 from data import (
@@ -41,6 +42,7 @@ logger.addHandler(stream_handler)
 def create_app():
     basedir = os.path.abspath(os.path.dirname(__file__))
     app = Flask(__name__)
+    bootstrap = Bootstrap(app)
     app.config["SECRET_KEY"] = os.environ["SECRET_KEY"]
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False

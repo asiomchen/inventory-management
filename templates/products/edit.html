@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% from 'bootstrap5/form.html' import render_form %}
 {% block content %}
     <div class="container">
         <div class="row justify-content-center">
@@ -7,51 +7,9 @@
                 <h1 class="text-center">
                     {% block title %} Edit {{ product.title }}'s information {% endblock %}
                 </h1>
-                <form method="post" enctype="multipart/form-data" class="form">
-                    <div class="mb-3">
-                        <label for="title" class="form-label">Title</label>
-                        <input type="text" class="form-control" name="title" value="{{ product.title }}" placeholder="Title">
-                    </div>
-                    <div class="mb-3">
-                        <label for="title" class="form-label">Category</label>
-                        <select class="form-select" name="category">
-                            {% for category in categories %}
-                                <option value="{{ category.name }}" {% if category.name == product.category.name %} selected {% endif %}>{{ category.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="volume" class="form-label">Volume (mL)</label>
-                        <input type="text" class="form-control" name="volume" placeholder="Volume (mL)(optional)" value="{{ product.volume if product.volume else '' }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="New photo upload" class="form-label">Photo</label>
-                        <input type="file" class="form-control" name="photo" accept="image/*" value='no_photo'>
-                    </div>
-                    <div class="mb-3">
-                        <label for="Weight" class="form-label">Weight (g)</label>
-                        <input type="text" class="form-control" name="weight" value="{{ product.weight }}" placeholder="Weight(g)">
-                    </div>
-                    <div class="mb-3">
-                        <label for="Purchase Price" class="form-label">Purchase Price (USD)</label>
-                        <input type="text" class="form-control" name="purchase_price" value="{{ product.purchase_price }}" placeholder="Purchase Price(USD)">
-                    </div>
-                    <div class="mb-3">
-                        <label for="Sale Price" class="form-label">Sale Price (USD)</label>
-                        <input type="text" class="form-control" name="sale_price" value="{{ product.sale_price }}" placeholder="Sale Price(USD)">
-                    </div>
-                    <div class="mb-3">
-                        <label for="Quantity" class="form-label">Quantity</label>
-                        <input type="text" class="form-control" name="quantity" value="{{ product.quantity }}" placeholder="Quantity">
-                    </div>
-                    <div class="mb-3">
-                        <label for="Description" class="form-label">Description</label>
-                        <textarea class="form-control" name="description" rows="10" placeholder="Description">{{ product.description }}</textarea>
-                    </div>
-                    <div class="mb-3 text-center">
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                    </div>
-                </form>
+                <hr>
+                {{ render_form(form) }}
+                
             </div>
         </div>
     </div>

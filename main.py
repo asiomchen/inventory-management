@@ -11,11 +11,13 @@ from flask import (
     flash,
     jsonify,
 )
+from matplotlib import category
 from werkzeug.utils import secure_filename
 from flask_login import login_required
 import logging
 from data import Product, InvoiceProduct, Invoice, Image, Category, Customer, db
 from images import upload_image
+from forms import ProductForm
 
 main = Blueprint("main", __name__)
 
@@ -72,18 +74,20 @@ def uploaded_file(filename):
 @main.route("/create/", methods=("GET", "POST"))
 @login_required
 def create():
-    if request.method == "POST":
-        title = request.form["title"]
-        description = request.form["description"]
-        quantity = int(request.form["quantity"])
-        photo = request.files["photo"]
-        weight = float(request.form["weight"])
-        purchase_price = float(request.form["purchase_price"])
-        sale_price = float(request.form["sale_price"])
+    form = ProductForm()
+    form.category_idx.choices = [(category.idx, category.name) for category in Category.query.all()]
+    if form.validate_on_submit():
+        title = form.title.data
+        description = form.description.data
+        quantity = form.quantity.data
+        photo = form.photo.data
+        weight = form.weight.data
+        purchase_price = form.purchase_price.data
+        sale_price = form.sale_price.data
         profit = sale_price - purchase_price
-        category_name = request.form["category"]
-        category = Category.query.filter_by(name=category_name).first()
-        category_idx = category.idx
+        category_idx = form.category_idx.data
+        volume = form.volume.data
+        photo = form.photo.data
 
         if photo:
             filename = secure_filename(photo.filename)
@@ -100,16 +104,6 @@ def create():
         else:
             photo = "No photo"
 
-        volume = request.form.get("volume")
-        if volume:
-            if volume == "":
-                volume = None
-            elif re.match(r"^\d+(\.\d+)?$", volume):
-                volume = float(volume)
-            else:
-                flash("Volume must be a number", "danger")
-                return render_template("products/create.html")
-
         product = Product(
             title=title,
             description=description,
@@ -124,36 +118,35 @@ def create():
         db.session.add(product)
         db.session.commit()
 
-        return redirect(url_for("main.index"))
-    return render_template("products/create.html")
+        return redirect(url_for("main.product", product_id=product.idx))
+    return render_template("products/create.html", form=form)
 
 
 @main.route("/<int:product_id>/edit/", methods=("GET", "POST"))
 @login_required
 def edit(product_id):
     product = Product.query.get_or_404(product_id)
-
-    if request.method == "POST":
-        product.title = request.form["title"]
-        category_name = request.form["category"]
-        category = Category.query.filter_by(name=category_name).first()
-        product.category_idx = category.idx
-
-        product.description = request.form["description"]
-        product.quantity = int(request.form["quantity"])
-        product.weight = float(request.form["weight"])
-        product.purchase_price = float(request.form["purchase_price"])
-        product.sale_price = float(request.form["sale_price"])
+    form = ProductForm(obj=product)
+    form.category_idx.choices = [(category.idx, category.name) for category in Category.query.all()]
+    if form.validate_on_submit():
+        product.title = form.title.data
+        product.description = form.description.data
+        product.quantity = form.quantity.data
+        product.weight = form.weight.data
+        product.purchase_price = form.purchase_price.data
+        product.sale_price = form.sale_price.data
         product.profit = product.sale_price - product.purchase_price
+        product.category_idx = form.category_idx.data
+        product.volume = form.volume.data
+        photo = form.photo.data
 
         # Check if a new photo was uploaded in the form
-        if "photo" in request.files:
-            new_photo = request.files["photo"]
-            if new_photo.filename:
+        if photo:
+            if photo.filename:
                 # Process the new photo and update the product's photo field
-                filename = secure_filename(new_photo.filename)
+                filename = secure_filename(photo.filename)
                 logging.info(f"New photo uploaded: {filename}")
-                new_photo.save(
+                photo.save(
                     os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
                 )
                 url, public_id = upload_image(
@@ -165,23 +158,11 @@ def edit(product_id):
                 image = Image.query.filter_by(public_id=public_id).first()
                 product.photo_idx = image.idx
                 os.remove(os.path.join(current_app.config["UPLOAD_FOLDER"], filename))
-
-        volume = request.form.get("volume")
-        if volume:
-            if volume == "":
-                volume = None
-            elif re.match(r"^\d+(\.\d+)?$", volume):
-                volume = float(volume)
-            else:
-                flash("Volume must be a number", "danger")
-                return render_template("products/create.html")
-        product.volume = volume
-
         db.session.add(product)
         db.session.commit()
-
-        return redirect(url_for("main.index"))
-    return render_template("products/edit.html", product=product)
+        flash("Product updated successfully", "success")
+        return redirect(url_for("main.product", product_id=product.idx))
+    return render_template("products/edit.html", product=product, form=form)
 
 
 @main.route("/about/")
