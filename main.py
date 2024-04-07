@@ -23,24 +23,21 @@ main = Blueprint("main", __name__)
 @main.route("/")
 @login_required
 def index():
-    products = Product.query.all()
-    categories = Category.query.all()
-    return render_template(
-        "index.html", products=products, category_name=None, categories=categories
-    )
-
-
-@main.route("/category/<int:category_id>/")
-@login_required
-def category(category_id):
-    products = Product.query.filter_by(category_idx=category_id).all()
-    current_category = Category.query.get_or_404(category_id)
-    if not products:
-        flash("No products in this category yet", "info")
+    query = Product.query
+    category_name = None
+    if "category" in request.args:
+        category_name = request.args["category"]
+        category = Category.query.filter_by(name=category_name).first()
+        if category:
+            query = query.filter_by(category_idx=category.idx)
+    page = query.paginate(per_page=2)
+    if len(page.items) == 0 and category_name:
+        flash(f"No products found in the category: {category_name}", "warning")
         return redirect(url_for("main.index"))
+    logging.info(f"{type(page)}")
     return render_template(
-        "index.html", products=products, category_name=current_category.name
-    )
+        "index.html", page=page, products=page.items, category_name=category_name)
+
 
 
 @main.route("/<int:product_id>/")

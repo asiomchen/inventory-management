@@ -34,7 +34,7 @@
                 <ul class="dropdown-menu ml-auto" aria-labelledby="navbarDropdown">
                   <li><a class="dropdown-item" href="{{ url_for('main.index') }}">All products</a>
                     {% for category in categories %}
-                    <li><a class="dropdown-item" href="{{ url_for('main.category', category_id=category.idx) }}">{{ category.name }}</a></li>
+                    <li><a class="dropdown-item" href="/?category={{ category.name.replace(' ', '+') }}">{{ category.name }}</a></li>
                     {% endfor %}
                 </ul>
               </li>
