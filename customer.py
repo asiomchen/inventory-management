@@ -7,6 +7,7 @@ from flask import (
     flash,
 )
 from flask_login import login_required
+from forms import CustomerForm
 from data import db, Customer, Invoice
 
 
@@ -30,35 +31,29 @@ def customers():
 @customer.route("/customers/new", methods=["GET", "POST"])
 @login_required
 def new():
-    if request.method == "POST":
-        name = request.form["name"]
-        phone = request.form["phone"]
-        address = request.form["address"]
-        email = request.form["email"]
-        notes = request.form["notes"]
-        customer = Customer(
-            name=name, phone=phone, address=address, notes=notes, email=email
-        )
+    form = CustomerForm()
+    if form.validate_on_submit():
+        customer = Customer()
+        form.populate_obj(customer)
         db.session.add(customer)
         db.session.commit()
         flash("Customer added successfully", "success")
         return redirect(url_for("customer.customers"))
-    return render_template("customers/new.html")
+    return render_template("customers/new.html", form=form)
 
 
 @customer.route("/customers/<int:customer_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit(customer_id):
     customer: Customer = Customer.query.get(customer_id)
-    if request.method == "POST":
-        customer.name = request.form["name"]
-        customer.phone = request.form["phone"]
-        customer.address = request.form["address"]
-        customer.notes = request.form["notes"]
+    form = CustomerForm(obj=customer)
+    if form.validate_on_submit():
+        form.populate_obj(customer)
+        db.session.add(customer)
         db.session.commit()
         flash("Customer updated successfully", "success")
         return redirect(url_for("customer.customers"))
-    return render_template("customers/edit.html", customer=customer)
+    return render_template("customers/edit.html", customer=customer, form=form)
 
 
 @customer.route("/customers/<int:customer_id>/delete", methods=["POST"])

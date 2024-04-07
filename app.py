@@ -5,6 +5,8 @@ from flask import (
     Flask,
 )
 from flask_login import LoginManager
+from flask_migrate import Migrate
+from flask_bootstrap import Bootstrap5 as Bootstrap
 from werkzeug.security import generate_password_hash
 from utils import generate_random_image
 from data import (
@@ -40,6 +42,7 @@ logger.addHandler(stream_handler)
 def create_app():
     basedir = os.path.abspath(os.path.dirname(__file__))
     app = Flask(__name__)
+    bootstrap = Bootstrap(app)
     app.config["SECRET_KEY"] = os.environ["SECRET_KEY"]
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -54,6 +57,7 @@ def create_app():
     app.register_blueprint(pricing_blueprint)
     app.jinja_env.globals.update(deliver_image=deliver_image)
     db.init_app(app)
+    migrate = Migrate(app, db)
     login_manager = LoginManager()
     login_manager.login_view = "auth.login"
     login_manager.init_app(app)

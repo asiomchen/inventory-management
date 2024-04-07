@@ -1,6 +1,8 @@
 cloudinary
 Flask-Login
 Flask-SQLAlchemy
+Flask-WTF
+bootstrap-flask
 pymysql[rsa]
 randimage
 SQLAlchemy
