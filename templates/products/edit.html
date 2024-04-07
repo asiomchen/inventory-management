@@ -19,7 +19,11 @@
                                 <option value="{{ category.name }}" {% if category.name == product.category.name %} selected {% endif %}>{{ category.name }}</option>
                             {% endfor %}
                         </select>
-                    <br>
+                    </div>
+                    <div class="mb-3">
+                        <label for="volume" class="form-label">Volume (mL)</label>
+                        <input type="text" class="form-control" name="volume" placeholder="Volume (mL)(optional)" value="{{ product.volume if product.volume else '' }}">
+                    </div>
                     <div class="mb-3">
                         <label for="New photo upload" class="form-label">Photo</label>
                         <input type="file" class="form-control" name="photo" accept="image/*" value='no_photo'>
