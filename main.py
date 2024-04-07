@@ -199,7 +199,7 @@ def delete(product_id):
     return redirect(url_for("main.index"))
 
 
-@main.route("/table")
+@main.route("/table/")
 @login_required
 def table():
     return render_template("products/table.html")
