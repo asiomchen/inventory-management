@@ -1,1 +1,1 @@
-tea-inventory: gunicorn 'app:create_app()'
+tea-inventory: flask db upgrade; gunicorn 'app:create_app()'
