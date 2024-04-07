@@ -52,6 +52,7 @@ class Product(db.Model):
     purchase_price = db.Column(db.Float)
     sale_price = db.Column(db.Float)
     profit = db.Column(db.Float)
+    volume = db.Column(db.Float, nullable=True)
 
     def __repr__(self):
         return "<Product %r>" % self.title
