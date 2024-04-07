@@ -1,0 +1,62 @@
+{% macro render_pagination(pagination, endpoint) %}
+  <div class="page-items col-12 col-lg-3 page-items mx-auto d-lg-block">
+    {{ pagination.first }} - {{ pagination.last }} of {{ pagination.total }}
+  </div>
+  <div class="pagination col-12 col-lg-3 page-items mx-auto d-lg-block">
+    {% for page in pagination.iter_pages() %}
+      {% if page %}
+        {% if page != pagination.page %}
+          <a href="{{ url_for(endpoint, page=page) }}">{{ page }}</a>
+        {% else %}
+          <a href="{{ url_for(endpoint, page=page) }}" class=active>{{ page }}</a>
+        {% endif %}
+      {% else %}
+        <span class=ellipsis>…</span>
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endmacro %}
+
+
+{% macro per_page_dropdown(endpoint, per_page) %}
+  {% set query_string = request.query_string.decode('utf-8') %}
+  <form action="{{ url_for(request.endpoint) }}{{ '?' + query_string if query_string else '' }}" method="get">
+    <div class="col-12 col-lg-3 page-items">
+      <label for="per_page" class="form-label">Items per page:</label>
+      <select name="per_page" class="form-select" onchange="this.form.submit()">
+        {% for value in [5, 10, 25, 50, 100] %}
+          <option value="{{ value }}" {% if value == per_page %}selected{% endif %}>{{ value }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    {% for key, value in request.args.items() %}
+      {% if key != 'per_page' %}
+        <input type="hidden" name="{{ key }}" value="{{ value }}">
+      {% endif %}
+    {% endfor %}
+  </form>
+{% endmacro %}
+
+
+{% macro sort_by_dropdown() %}
+  {% set query_string = request.query_string.decode('utf-8') %}
+  {% set current_sort_by = request.args.get('sort_by', default='title') %}
+  {% set action_url = request.path + ('?' + query_string if query_string else '') %}
+  <form action="{{ action_url }}" method="get">
+    <div class="col-12 col-lg-3 page-items">
+      <label for="sort_by" class="form-label">Sort by:</label>
+      <select name="sort_by" class="form-select" onchange="this.form.submit()">
+        {% for name, value in [('Title', 'title'), ('Weight', 'weight'), ('Purchase Price', 'purchase_price'), ('Sale Price', 'sale_price'), ('Quantity', 'quantity'), ('Profit', 'profit')] %}
+          <option value="{{ value }}" {% if value == current_sort_by %}selected{% endif %}>{{ name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    {% for key, value in request.args.items() %}
+      {% if key != 'sort_by' %}
+        <input type="hidden" name="{{ key }}" value="{{ value }}">
+      {% endif %}
+    {% endfor %}
+  </form>
+{% endmacro %}
+
+

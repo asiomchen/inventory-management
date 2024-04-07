@@ -25,12 +25,28 @@ main = Blueprint("main", __name__)
 def index():
     query = Product.query
     category_name = None
+    sortables = ["title", "quantity", "weight", "purchase_price", "sale_price", "profit"]
     if "category" in request.args:
         category_name = request.args["category"]
         category = Category.query.filter_by(name=category_name).first()
         if category:
             query = query.filter_by(category_idx=category.idx)
-    page = query.paginate(per_page=2)
+    per_page = request.args.get("per_page", 5, type=int)
+    # Sorting
+    if "sort_by" in request.args:
+        sort_by = request.args["sort_by"]
+        if sort_by in sortables:
+            if "sort_order" in request.args:
+                sort_order = request.args["sort_order"]
+                if sort_order == "asc":
+                    query = query.order_by(getattr(Product, sort_by))
+                elif sort_order == "desc":
+                    query = query.order_by(getattr(Product, sort_by).desc())
+            else:
+                query = query.order_by(getattr(Product, sort_by))
+
+
+    page = query.paginate(per_page=per_page)
     if len(page.items) == 0 and category_name:
         flash(f"No products found in the category: {category_name}", "warning")
         return redirect(url_for("main.index"))

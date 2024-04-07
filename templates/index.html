@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
-
+{% from "macros.html" import render_pagination with context %}
+{% from "macros.html" import per_page_dropdown with context %}
+{% from "macros.html" import sort_by_dropdown with context %}
 {% block content %}
 
     <h1 class="title display-4 text-center mb-4">{% block title %} Products {% endblock %}</h1>
@@ -7,6 +9,11 @@
         <h2 class="title display-6 text-center mb-3">Category: {{ category_name }}</h2>
     {% endif %}
     <hr>
+    <div class="row input-group mb-3">
+    {{ per_page_dropdown("main.index") }}
+    {{ sort_by_dropdown() }}
+    </div>
+    </div>
     <div class="container">
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {% for product in page %}
@@ -51,24 +58,6 @@
     </div>
 </div>
 
-{% macro render_pagination(pagination, endpoint) %}
-  <div class=page-items>
-    {{ pagination.first }} - {{ pagination.last }} of {{ pagination.total }}
-  </div>
-  <div class=pagination>
-    {% for page in pagination.iter_pages() %}
-      {% if page %}
-        {% if page != pagination.page %}
-          <a href="{{ url_for(endpoint, page=page) }}">{{ page }}</a>
-        {% else %}
-          <a href="{{ url_for(endpoint, page=page) }}" class=active>{{ page }}</a>
-        {% endif %}
-      {% else %}
-        <span class=ellipsis>…</span>
-      {% endif %}
-    {% endfor %}
-  </div>
-{% endmacro %}
 
 {{ render_pagination(page, 'main.index')}}
 
