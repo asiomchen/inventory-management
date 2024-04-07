@@ -5,6 +5,7 @@ from flask import (
     Flask,
 )
 from flask_login import LoginManager
+from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash
 from utils import generate_random_image
 from data import (
@@ -54,6 +55,7 @@ def create_app():
     app.register_blueprint(pricing_blueprint)
     app.jinja_env.globals.update(deliver_image=deliver_image)
     db.init_app(app)
+    migrate = Migrate(app, db)
     login_manager = LoginManager()
     login_manager.login_view = "auth.login"
     login_manager.init_app(app)
