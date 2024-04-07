@@ -23,6 +23,12 @@
                     <td>Category</td>
                     <td>{{ product.category.name }}</td>
                 </tr>
+                {% if product.volume %}
+                <tr>
+                    <td>Volume</td>
+                    <td>{{ product.volume }} ml</td>
+                </tr>
+                {% endif %}
                 <tr>
                     <td>Weight</td>
                     <td>{{ product.weight }} g</td>

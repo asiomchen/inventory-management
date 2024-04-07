@@ -22,6 +22,7 @@
                 <th data-data="photo" data-sort="false">Photo</th>
                 <th data-data="title" data-sort="true">Title</th>
                 <th data-data="category" data-sort="true">Category</th>
+                <th data-data="volume">Volume (ml)</th>
                 <th data-data="weight" data-sort="true">Weight (g)</th>
                 <th data-data="purchase_price" data-sort="true">Purchase price ($)</th>
                 <th data-data="sale_price" data-sort="true">Sale price ($)</th>
@@ -57,6 +58,7 @@
                     return `<a href="/${row.id}" class="text-truncate" style="max-width: 150px; display: inline-block;">${data}</a>`;
                 }},
                 { data: "category"},
+                { data: "volume"},
                 { data: "weight" },
                 { data: "purchase_price" },
                 { data: "sale_price" },

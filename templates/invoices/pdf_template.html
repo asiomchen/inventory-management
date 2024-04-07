@@ -53,6 +53,7 @@
             margin-top: 20px;
             text-align: left;
             font-weight: bold;
+            font-size: 16px;
         }
 
         .totals p {
@@ -91,7 +92,6 @@
             <thead class="thead-light">
                 <tr>
                     <th>Product</th>
-                    <th>Weight (kg)</th>
                     <th>Sale Price ($)</th>
                     <th>Quantity</th>
                     <th>Tax Rate (%)</th>
@@ -101,7 +101,6 @@
                 {% for product in products %}
                     <tr>
                         <td>{{ product.product.title }}</td>
-                        <td>{{ product.weight }}</td>
                         <td>{{ product.sale_price }}</td>
                         <td>{{ product.quantity }}</td>
                         <td>{{ '%i'|format(product.product.category.tax_rate) }}</td>
@@ -111,9 +110,19 @@
         </table>
 
         <div class="totals">
-            <p>Total Weight:      {{ '%0.2f'|format(invoice.total_weight) }} kg</p>
-            <p>Total Net Price:   {{ '%0.2f'|format(invoice.total_sale_price) }} $</p>
-            <p>To Pay:            {{ '%0.2f'|format(invoice.customer_price) }} $</p>
+            <table style="width: 100%;">
+                <tr>
+                    <td>Total Net Price:</td>
+                    <td style="text-align: left;">{{ '%0.2f'|format(invoice.total_sale_price) }} $</td>
+                </tr>
+                <tr>
+                    <td>Total Tax:</td>
+                    <td style="text-align: left;">{{ '%0.2f'|format(invoice.customer_price - invoice.total_sale_price) }} $</td>
+                <tr>
+                    <td>To Pay:</td>
+                    <td style="text-align: left;color: red;">{{ '%0.2f'|format(invoice.customer_price) }} $</td>
+                </tr>
+            </table>
         </div>
         
         <div class="footer">

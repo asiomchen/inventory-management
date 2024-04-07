@@ -23,24 +23,37 @@ main = Blueprint("main", __name__)
 @main.route("/")
 @login_required
 def index():
-    products = Product.query.all()
-    categories = Category.query.all()
-    return render_template(
-        "index.html", products=products, category_name=None, categories=categories
-    )
+    query = Product.query
+    category_name = None
+    sortables = ["title", "quantity", "weight", "purchase_price", "sale_price", "profit"]
+    if "category" in request.args:
+        category_name = request.args["category"]
+        category = Category.query.filter_by(name=category_name).first()
+        if category:
+            query = query.filter_by(category_idx=category.idx)
+    per_page = request.args.get("per_page", 5, type=int)
+    # Sorting
+    if "sort_by" in request.args:
+        sort_by = request.args["sort_by"]
+        if sort_by in sortables:
+            if "sort_order" in request.args:
+                sort_order = request.args["sort_order"]
+                if sort_order == "asc":
+                    query = query.order_by(getattr(Product, sort_by))
+                elif sort_order == "desc":
+                    query = query.order_by(getattr(Product, sort_by).desc())
+            else:
+                query = query.order_by(getattr(Product, sort_by))
 
 
-@main.route("/category/<int:category_id>/")
-@login_required
-def category(category_id):
-    products = Product.query.filter_by(category_idx=category_id).all()
-    current_category = Category.query.get_or_404(category_id)
-    if not products:
-        flash("No products in this category yet", "info")
+    page = query.paginate(per_page=per_page)
+    if len(page.items) == 0 and category_name:
+        flash(f"No products found in the category: {category_name}", "warning")
         return redirect(url_for("main.index"))
+    logging.info(f"{type(page)}")
     return render_template(
-        "index.html", products=products, category_name=current_category.name
-    )
+        "index.html", page=page, products=page.items, category_name=category_name)
+
 
 
 @main.route("/<int:product_id>/")
@@ -87,6 +100,16 @@ def create():
         else:
             photo = "No photo"
 
+        volume = request.form.get("volume")
+        if volume:
+            if volume == "":
+                volume = None
+            elif re.match(r"^\d+(\.\d+)?$", volume):
+                volume = float(volume)
+            else:
+                flash("Volume must be a number", "danger")
+                return render_template("products/create.html")
+
         product = Product(
             title=title,
             description=description,
@@ -96,7 +119,7 @@ def create():
             purchase_price=purchase_price,
             sale_price=sale_price,
             profit=profit,
-            category_idx=category_idx,
+            category_idx=category_idx, volume=volume
         )
         db.session.add(product)
         db.session.commit()
@@ -143,6 +166,17 @@ def edit(product_id):
                 product.photo_idx = image.idx
                 os.remove(os.path.join(current_app.config["UPLOAD_FOLDER"], filename))
 
+        volume = request.form.get("volume")
+        if volume:
+            if volume == "":
+                volume = None
+            elif re.match(r"^\d+(\.\d+)?$", volume):
+                volume = float(volume)
+            else:
+                flash("Volume must be a number", "danger")
+                return render_template("products/create.html")
+        product.volume = volume
+
         db.session.add(product)
         db.session.commit()
 
@@ -177,12 +211,22 @@ def get_products():
     query = Product.query
     search = request.args.get('search[value]')
     if search:
-        query = query.filter(db.or_(
-            Product.title.like(f'%{search}%'),
-            Product.description.like(f'%{search}%'),
-            Product.category.has(Category.name.like(f'%{search}%')),
-            Product.quantity.like(f'%{search}%'),
-        ))
+        logging.info(f"Search by {search}")
+        # if string like float_column>float or float_column<float we need to split it
+        if re.match(r"([a-z_].+)([<>])(\d+\.?\d?)", search):
+            logging.info(f"Search by {search}")
+            column, operator, value = re.match(r"([a-z_].+)([<>])(\d+\.?\d?)", search).groups()
+            if operator == '>':
+                query = query.filter(getattr(Product, column) > float(value))
+            elif operator == '<':
+                query = query.filter(getattr(Product, column) < float(value))
+        else:
+            query = query.filter(db.or_(
+                Product.title.like(f'%{search}%'),
+                Product.description.like(f'%{search}%'),
+                Product.category.has(Category.name.like(f'%{search}%')),
+                Product.quantity.like(f'%{search}%'),
+            ))
     total_filtered = query.count()
 
     # Sorting
@@ -225,6 +269,7 @@ def get_products():
                 "profit": product.profit,
                 "category": product.category.name,
                 "photo": product.photo.url if product.photo else current_app.url_for("static", filename="no-photo.bmp"),
+                "volume": product.volume,
             }
         )
     return jsonify(

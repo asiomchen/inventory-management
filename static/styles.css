@@ -112,4 +112,41 @@ li {
 }
 
 
+.pagination {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+    list-style: none; /* Removes the bullet points */
+}
 
+.pagination a,
+.pagination span {
+    padding: 6px 12px;
+    margin: 0 3px;
+    border-radius: 3px;
+    text-decoration: none;
+    color: #007bff;
+    background-color: #ffffff;
+    border: 1px solid #007bff;
+    transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.pagination a:hover,
+.pagination span:hover {
+    background-color: #f0f0f0;
+}
+
+.pagination .active {
+    color: #ffffff;
+    background-color: #007bff;
+    border-color: #007bff;
+    pointer-events: none;
+}
+
+.page-items {
+    text-align: center;
+    padding: 1rem; /* Adds some space around the text */
+    background-color: #f8f9fa; /* Adds a light background color */
+    border-radius: .25rem; /* Rounds the corners */
+    margin-bottom: 1rem; /* Adds some space below the div */
+}
