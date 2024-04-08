@@ -28,6 +28,7 @@ from auth import auth as auth_blueprint
 from customer import customer as customer_blueprint
 from invoice import invoice_blueprint
 from pricing import pricing as pricing_blueprint
+from import_data import import_data as import_data_blueprint
 import logging
 import sys
 import pymysql
@@ -55,6 +56,7 @@ def create_app():
     app.register_blueprint(customer_blueprint)
     app.register_blueprint(invoice_blueprint)
     app.register_blueprint(pricing_blueprint)
+    app.register_blueprint(import_data_blueprint)
     app.jinja_env.globals.update(deliver_image=deliver_image)
     db.init_app(app)
     migrate = Migrate(app, db)

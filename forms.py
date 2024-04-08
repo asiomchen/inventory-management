@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, FileField, TextAreaField, FloatField, IntegerField, SelectField
 from wtforms.validators import DataRequired, Length, Optional
+from flask_wtf.file import FileAllowed, FileRequired
 
 
 class ProductForm(FlaskForm):
@@ -22,4 +23,8 @@ class CustomerForm(FlaskForm):
     address = StringField("Address", validators=[DataRequired(), Length(min=1, max=255)], description="Address")
     email = StringField("Email", validators=[DataRequired(), Length(min=1, max=255)], description="Email")
     notes = TextAreaField("Notes", validators=[Optional()], description="Notes")
+    submit = SubmitField("Submit")
+
+class ImportForm(FlaskForm):
+    file = FileField("File", validators=[FileRequired(), FileAllowed(["csv"], "CSV only!")])
     submit = SubmitField("Submit")

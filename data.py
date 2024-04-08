@@ -1,7 +1,13 @@
+from __future__ import annotations
+import tempfile
+import requests
 from flask_sqlalchemy import SQLAlchemy
+import os
+from flask import current_app
+from images import upload_image
 from sqlalchemy.sql import func
 from flask_login import UserMixin
-
+from dataclasses import dataclass, Field
 product_categories = [
     "kettles",
     "yixing pots",
@@ -56,6 +62,49 @@ class Product(db.Model):
 
     def __repr__(self):
         return "<Product %r>" % self.title
+    
+    @classmethod
+    def from_wix(cls, product: ImportedProduct):
+        photo_url = product.photo
+        if photo_url:
+            with tempfile.NamedTemporaryFile() as temp:
+                temp.write(requests.get(photo_url).content)
+                temp.seek(0)
+                url, public_id = upload_image(
+                    os.path.join(current_app.config["UPLOAD_FOLDER"], temp.name)
+                )
+                image = Image(url=url, public_id=public_id)
+                db.session.add(image)
+                db.session.commit()
+                image = Image.query.filter_by(public_id=public_id).first()
+                photo_idx = image.idx
+        else:
+            photo_idx = None
+        return cls(
+            title=product.title,
+            category_idx=product.category_idx,
+            description=product.description,
+            photo_idx=photo_idx,
+            quantity=product.quantity,
+            weight=product.weight,
+            purchase_price=product.purchase_price,
+            sale_price=product.sale_price,
+            volume=product.volume,
+            profit = product.sale_price - product.purchase_price)
+
+
+    
+@dataclass
+class ImportedProduct:
+    title: str 
+    category_idx: int = 0
+    description: str = ""
+    photo: str = None
+    quantity: int = 0
+    weight: float = 0
+    purchase_price: float = 0
+    sale_price: float = 0
+    volume: float  = 0
 
 
 class InvoiceProduct(db.Model):
