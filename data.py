@@ -1,13 +1,9 @@
 from __future__ import annotations
-import tempfile
-import requests
 from flask_sqlalchemy import SQLAlchemy
-import os
-from flask import current_app
 from images import upload_image
 from sqlalchemy.sql import func
 from flask_login import UserMixin
-from dataclasses import dataclass, Field
+from dataclasses import dataclass
 product_categories = [
     "kettles",
     "yixing pots",
@@ -23,6 +19,7 @@ product_categories = [
     "partnership sales",
     "vintage teas",
     "miscellaneous",
+    "imported",
 ]
 db = SQLAlchemy()
 
@@ -66,6 +63,7 @@ class Product(db.Model):
     @classmethod
     def from_wix(cls, product: ImportedProduct):
         photo_url = product.photo
+        category = Category.query.filter_by(name="imported").first()
         if photo_url:
             secure_url, public_id = upload_image(photo_url)
             image = Image(url=secure_url, public_id=public_id)
@@ -76,7 +74,7 @@ class Product(db.Model):
             photo_idx = None
         return cls(
             title=product.title,
-            category_idx=product.category_idx,
+            category_idx=category.idx,
             description=product.description,
             photo_idx=photo_idx,
             quantity=product.quantity,
