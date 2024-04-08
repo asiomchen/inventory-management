@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, FileField, TextAreaField, FloatField, IntegerField, SelectField
+from wtforms import StringField, SubmitField, FileField, TextAreaField, FloatField, IntegerField, SelectField, BooleanField
 from wtforms.validators import DataRequired, Length, Optional
 from flask_wtf.file import FileAllowed, FileRequired
 
@@ -27,4 +27,5 @@ class CustomerForm(FlaskForm):
 
 class ImportForm(FlaskForm):
     file = FileField("File", validators=[FileRequired(), FileAllowed(["csv"], "CSV only!")])
+    allow_duplicates = BooleanField("Allow products with the same name", default=False)
     submit = SubmitField("Submit")

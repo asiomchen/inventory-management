@@ -10,4 +10,5 @@ SQLAlchemy
 Werkzeug
 gunicorn
 python-dotenv
+pandas
 sympy

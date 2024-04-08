@@ -67,17 +67,11 @@ class Product(db.Model):
     def from_wix(cls, product: ImportedProduct):
         photo_url = product.photo
         if photo_url:
-            with tempfile.NamedTemporaryFile() as temp:
-                temp.write(requests.get(photo_url).content)
-                temp.seek(0)
-                url, public_id = upload_image(
-                    os.path.join(current_app.config["UPLOAD_FOLDER"], temp.name)
-                )
-                image = Image(url=url, public_id=public_id)
-                db.session.add(image)
-                db.session.commit()
-                image = Image.query.filter_by(public_id=public_id).first()
-                photo_idx = image.idx
+            secure_url, public_id = upload_image(photo_url)
+            image = Image(url=secure_url, public_id=public_id)
+            db.session.add(image)
+            db.session.commit()
+            photo_idx = image.idx
         else:
             photo_idx = None
         return cls(
