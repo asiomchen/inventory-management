@@ -8,7 +8,9 @@ from flask import (
     jsonify
 )
 from flask_login import login_required
+from numpy import source
 from data import Invoice, InvoiceProduct, Product, Customer, db
+from forms import InvoiceProductForm
 import re
 import logging
 
@@ -200,58 +202,32 @@ def submit_invoice(invoice_id):
 def edit_invoice(invoice_id):
     invoice = Invoice.query.get_or_404(invoice_id)
     products = InvoiceProduct.query.filter_by(invoice_idx=invoice_id)
-    if request.method == "POST":
-        changed_product_id = int(request.form["product_id"])
-        changed_product = InvoiceProduct.query.filter_by(
-            product_idx=changed_product_id
-        ).first()
-        original_product = Product.query.get_or_404(changed_product.product_idx)
-        requested_quantity = int(request.form["quantity"])
-        if requested_quantity > original_product.quantity + changed_product.quantity:
-            flash(
-                f"Not enough {original_product.title} in stock, please enter a smaller quantity",
-                "danger",
-            )
-            return redirect(url_for("invoice.edit_invoice", invoice_id=invoice_id))
-        else:
-            original_product.quantity += changed_product.quantity - requested_quantity
-            changed_product.quantity = requested_quantity
-            changed_product.weight = (
-                changed_product.product.weight * changed_product.quantity
-            )
-            changed_product.purchase_price = (
-                changed_product.product.purchase_price * changed_product.quantity
-            )
-            changed_product.sale_price = (
-                changed_product.product.sale_price * changed_product.quantity
-            )
-            changed_product.profit = (
-                changed_product.sale_price - changed_product.purchase_price
-            )
-            db.session.merge(changed_product)
-            if changed_product.quantity == 0:
-                db.session.delete(changed_product)
-                logging.debug(f"Product {changed_product.product.title} deleted")
-            products = InvoiceProduct.query.filter_by(invoice_idx=invoice_id)
-
-        invoice.total_weight = sum([product.weight for product in products])
-        invoice.total_purchase_price = sum(
-            [product.purchase_price for product in products]
-        )
-        invoice.total_sale_price = sum([product.sale_price for product in products])
-        invoice.total_profit = sum([product.profit for product in products])
-        invoice.customer_price = sum([product.sale_price * 
-                                      (1 + product.product.category.tax_rate / 100)
-                                       for product in products])
-        db.session.merge(invoice)
-        db.session.commit()
-        flash("Invoice updated", "success")
-        return redirect(url_for("invoice.invoice", invoice_id=invoice_id))
     if request.method == "GET":
         if invoice.status == "closed":
             flash("Invoice is closed and cannot be edited", "danger")
             return redirect(url_for("invoice.invoice", invoice_id=invoice_id))
         return render_template("invoices/edit.html", invoice=invoice, products=products)
+
+
+@invoice_blueprint.route("/invoices/<int:invoice_id>/<int:product_id>/edit/", methods=("GET", "POST"))
+@login_required
+def edit_product(invoice_id, product_id):
+    invoice = Invoice.query.get_or_404(invoice_id)
+    product = InvoiceProduct.query.filter_by(invoice_idx=invoice_id, idx=product_id).first()
+    source_product = Product.query.get(product.product_idx)
+    max_stock = source_product.quantity + product.quantity
+    form = InvoiceProductForm(obj=product)
+    if form.validate_on_submit():
+        form.populate_obj(product)
+        if product.quantity > max_stock:
+            flash(f"Cannot add items, max stock is {max_stock}", "danger")
+            return redirect(url_for("invoice.edit_invoice", invoice_id=invoice_id))
+        source_product.quantity = max_stock - product.quantity
+        db.session.merge(product)
+        db.session.commit()
+        flash(f"Product {product.product.title} updated successfully", "success")
+        return redirect(url_for("invoice.edit_invoice", invoice_id=invoice_id))
+    return render_template("invoices/edit_product.html", form=form, invoice=invoice, product=product)
 
 
 @invoice_blueprint.route("/invoices")

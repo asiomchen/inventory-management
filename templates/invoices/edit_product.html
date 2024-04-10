@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% from 'bootstrap5/form.html' import render_field %}
+{% block content %}
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <h1 style="width: 100%">
+                    {% block title %} Edit invoice product {% endblock %}
+                </h1>
+                <table class="table table-striped table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Product</th>
+                            <th>Invoice</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ product.product.title }}</td>
+                            <td>{{ invoice.name }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <hr>
+                <form method="POST" action="{{ url_for('invoice.edit_product', invoice_id=invoice.idx, product_id=product.idx) }}">
+                {{ form.csrf_token() }}
+                <div style="display: none">
+                {{ render_field(form.product_idx) }}
+                </div>
+                {{ render_field(form.quantity) }}
+                {{ render_field(form.weight) }}
+                {{ render_field(form.purchase_price) }}
+                {{ render_field(form.sale_price) }}
+                {{ render_field(form.submit) }}
+                </form>
+                <hr>
+            </div>
+        </div>
+    </div>
+{% endblock %}
