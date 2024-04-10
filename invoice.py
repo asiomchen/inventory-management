@@ -8,7 +8,6 @@ from flask import (
     jsonify
 )
 from flask_login import login_required
-from numpy import source
 from data import Invoice, InvoiceProduct, Product, Customer, db
 from forms import InvoiceProductForm
 import re
@@ -216,12 +215,15 @@ def edit_product(invoice_id, product_id):
     product = InvoiceProduct.query.filter_by(invoice_idx=invoice_id, idx=product_id).first()
     source_product = Product.query.get(product.product_idx)
     max_stock = source_product.quantity + product.quantity
+    product = singlify_product(product)
     form = InvoiceProductForm(obj=product)
     if form.validate_on_submit():
         form.populate_obj(product)
+        product = desinglify_product(product)
         if product.quantity > max_stock:
             flash(f"Cannot add items, max stock is {max_stock}", "danger")
             return redirect(url_for("invoice.edit_invoice", invoice_id=invoice_id))
+        product.profit = product.sale_price - product.purchase_price
         source_product.quantity = max_stock - product.quantity
         db.session.merge(product)
         db.session.commit()
@@ -229,6 +231,17 @@ def edit_product(invoice_id, product_id):
         return redirect(url_for("invoice.edit_invoice", invoice_id=invoice_id))
     return render_template("invoices/edit_product.html", form=form, invoice=invoice, product=product)
 
+def singlify_product(product: InvoiceProduct):
+    product.weight = product.weight / product.quantity
+    product.purchase_price = product.purchase_price / product.quantity
+    product.sale_price = product.sale_price / product.quantity
+    return product
+
+def desinglify_product(product: InvoiceProduct):
+    product.weight = product.weight * product.quantity
+    product.purchase_price = product.purchase_price * product.quantity
+    product.sale_price = product.sale_price * product.quantity
+    return product
 
 @invoice_blueprint.route("/invoices")
 @login_required
@@ -285,7 +298,7 @@ def get_invoices():
             "name": invoice.name,
             "date": invoice.date.strftime('%Y-%m-%d'),
             "total_profit": str(invoice.total_profit) + "$",
-            "total_weight": str('%.2f' % invoice.total_weight) + "kg",
+            "total_weight": str('%.2f' % invoice.total_weight) + "g",
             "status": 'Closed' if invoice.status == 'closed' else 'Open',
             "is_active": invoice.is_active
         })

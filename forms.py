@@ -36,7 +36,6 @@ class InvoiceProductForm(FlaskForm):
     # hide label for product_idx
     product_idx = IntegerField(validators=[DataRequired()], widget=HiddenInput(), label=None)
     quantity = IntegerField("Quantity", validators=[DataRequired()], description="Quantity")
-    weight = FloatField("Weight", validators=[DataRequired()], description="Weight in grams per unit")
     purchase_price = FloatField("Purchase Price", validators=[DataRequired()], 
                                 description="Purchase Price in USD per unit")
     sale_price = FloatField("Sale Price", validators=[DataRequired()], 

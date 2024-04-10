@@ -32,7 +32,6 @@
         <thead class="thead-dark">
             <tr>
                 <th data-data="title" data-sort="true">Title</th>
-                <th data-data="weight" data-sort="true">Weight (g)</th>
                 <th data-data="purchase_price" data-sort="true">Purchase price ($)</th>
                 <th data-data="sale_price" data-sort="true">Sale price ($)</th>
                 <th data-data="quantity" data-sort="true">Quantity</th>
@@ -43,13 +42,12 @@
             {% for product in products %}
                 <tr>
                     <td>
-                        <a href="{{ url_for('main.product', product_id=product.idx) }}" class="text-truncate" style="max-width: 150px; display: inline-block;">
+                        <a href="{{ url_for('main.product', product_id=product.product_idx) }}" class="text-truncate" style="max-width: 150px; display: inline-block;">
                             {{ product.title }}
                         </a>
                     </td>
-                    <td>{{ product.weight }}</td>
-                    <td>{{ product.purchase_price }}</td>
-                    <td>{{ product.sale_price }}</td>
+                    <td>{{ product.purchase_price / product.quantity }}</td>
+                    <td>{{ product.sale_price / product.quantity }}</td>
                     <td>{{ product.quantity }}</td>
                     <td>
                         <a href="{{ url_for('invoice.edit_product', invoice_id=invoice.idx, product_id=product.idx) }}" class="btn btn-primary btn-sm">Edit</a>
