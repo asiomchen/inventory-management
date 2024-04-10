@@ -55,12 +55,12 @@
         <tbody>
             {% for product in products %}
                 <tr>
-                    <td>{{ product.product.title }}</td>
+                    <td>{{ product.title }}</td>
                     <td>{{ '%0.2f'|format(product.weight) }}</td>
                     <td>{{ product.purchase_price }}</td>
                     <td>{{ product.sale_price }}</td>
                     <td>{{ product.quantity }}</td>
-                    <td>{{ '%i'|format(product.product.category.tax_rate) }}</td>
+                    <td>{{ '%i'|format(product.category.tax_rate) }}</td>
                     <td>{{ product.profit }}</td>
                 </tr>
             {% endfor %}

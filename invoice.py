@@ -67,7 +67,7 @@ def add2invoice(product_id):
     if not active_invoice:
         flash("No active open invoices, please create or choose one first", "danger")
         return redirect(url_for("invoice.invoices"))
-    product = Product.query.get_or_404(product_id)
+    product: Product = Product.query.get_or_404(product_id)
     quantity = int(request.form["quantity"])
     weight = product.weight * quantity
     purchase_price = product.purchase_price * quantity
@@ -79,7 +79,7 @@ def add2invoice(product_id):
     if InvoiceProduct.query.filter_by(
         invoice_idx=invoice_id, product_idx=product_id
     ).first():
-        invoice_product = InvoiceProduct.query.filter_by(
+        invoice_product: InvoiceProduct = InvoiceProduct.query.filter_by(
             invoice_idx=invoice_id, product_idx=product_id
         ).first()
         invoice_product.quantity += quantity
@@ -96,7 +96,7 @@ def add2invoice(product_id):
             purchase_price=purchase_price,
             sale_price=sale_price,
             profit=profit,
-        )
+            title=product.title, category_idx=product.category_idx)
     if Invoice.query.get(invoice_id) is None:
         invoice = Invoice(
             idx=invoice_id,

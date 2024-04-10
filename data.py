@@ -111,6 +111,7 @@ class InvoiceProduct(db.Model):
     purchase_price = db.Column(db.Float)
     sale_price = db.Column(db.Float)
     profit = db.Column(db.Float)
+    title = db.Column(db.String(255))
 
     def __repr__(self):
         return "<InvoiceProduct %r>" % self.idx
