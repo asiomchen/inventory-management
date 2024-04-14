@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 class="text-center">Bestsellers</h2>
+<div class="input-group mb-3">
+    <label for="n" class="input-group-text">Show best:</label>
+    <select id="n" class="form-select" onclick="fetchData()">
+      <option value="1">1</option>
+      <option value="5">5</option>
+      <option value="10">10</option>
+      <option value="25">25</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
+    </select>
+  </div>
+<div id="bestsellers"></div>
+
+<hr>
+
+<h2 class="text-center">Profit</h2>
+<div class="input-group mb-3">
+    <label for="profit_by" class="input-group-text">Group by:</label>
+    <select id="profit_by" class="form-select" onclick="fetchProfit()">
+      <option value="month">Month</option>
+      <option value="year">Year</option>
+      <option value="day">Day</option>
+    </select>
+</div>
+
+
+<div id="profit"></div>
+
+{% endblock %}
+{% block scripts %}
+<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+<script>
+    function fetchData() {
+        var n = document.getElementById('n').value;
+        fetch('/dashboard/best_selling_products?limit=' + encodeURIComponent(n))
+            .then(response => response.json())
+            .then(data => {
+                Plotly.newPlot('bestsellers', data);
+            });
+    }
+</script>
+<script>
+    function fetchProfit() {
+        var group_by = document.getElementById('profit_by').value;
+        fetch('/dashboard/profit?profit_by=' + encodeURIComponent(group_by))
+            .then(response => response.json())
+            .then(data => {
+                Plotly.newPlot('profit', data);
+            });
+    }
+</script>
+
+<!-- <script>
+    window.addEventListener("load", myInit, true); function myInit(){ fetchData(); fetchProfit(); }
+</script> -->
+{% endblock %}
