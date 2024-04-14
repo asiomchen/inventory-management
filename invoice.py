@@ -68,12 +68,6 @@ def add2invoice(product_id):
         return redirect(url_for("invoice.invoices"))
     product: Product = Product.query.get_or_404(product_id)
     quantity = int(request.form["quantity"])
-    weight = product.weight * quantity
-    purchase_price = product.purchase_price * quantity
-    sale_price = product.sale_price * quantity
-    profit = sale_price - purchase_price
-    tax_rate = product.category.tax_rate / 100
-    customer_price = sale_price * (1 + tax_rate)
     invoice_id = active_invoice.idx
     if InvoiceProduct.query.filter_by(
         invoice_idx=invoice_id, product_idx=product_id
@@ -82,45 +76,20 @@ def add2invoice(product_id):
             invoice_idx=invoice_id, product_idx=product_id
         ).first()
         invoice_product.quantity += quantity
-        invoice_product.weight += weight
-        invoice_product.purchase_price += purchase_price
-        invoice_product.sale_price += sale_price
-        invoice_product.profit += profit
     else:
-        invoice_product = InvoiceProduct(
-            invoice_idx=invoice_id,
-            product_idx=product_id,
-            quantity=quantity,
-            weight=weight,
-            purchase_price=purchase_price,
-            sale_price=sale_price,
-            profit=profit,
-            title=product.title, category_idx=product.category_idx)
-    if Invoice.query.get(invoice_id) is None:
-        invoice = Invoice(
-            idx=invoice_id,
-            total_weight=weight,
-            total_purchase_price=purchase_price,
-            total_sale_price=sale_price,
-            total_profit=profit,
-            customer_price=customer_price,
-        )
-        db.session.add(invoice)
-    else:
-        invoice = Invoice.query.get(invoice_id)
-        invoice.total_weight += weight
-        invoice.total_purchase_price += purchase_price
-        invoice.total_sale_price += sale_price
-        invoice.total_profit += profit
-        invoice.customer_price += customer_price
-        db.session.merge(invoice)
+        invoice_product = InvoiceProduct.from_product(invoice_idx=invoice_id, product=product)
+        invoice_product.quantity = quantity
+    
     product.quantity -= quantity
-    db.session.merge(product)
-
     db.session.add(invoice_product)
+    db.session.merge(product)
     db.session.commit()
-    invoice_name = Invoice.query.get(invoice_id).name
-    flash(f"{product.title} added to invoice '{invoice_name}'", "success")
+
+    invoice: Invoice = Invoice.query.get(invoice_id)
+    invoice.calculate_totals()
+    db.session.merge(invoice)
+    db.session.commit()
+    flash(f"{product.title} added to invoice '{invoice.name}'", "success")
     # redirect to the same page where the form was submitted
     return redirect(request.referrer)
 
@@ -138,15 +107,6 @@ def invoice(invoice_id):
         "invoices/invoice.html", invoice=invoice, products=products, customers=customers
     )
 
-
-@invoice_blueprint.route("/latest_invoice/")
-@login_required
-def latest_invoice():
-    invoice = Invoice.query.order_by(Invoice.idx.desc()).first()
-    if invoice is None:
-        flash("No invoices yet, please create one", "info")
-        return redirect(url_for("invoice.index"))
-    return redirect(url_for("invoice.invoice", invoice_id=invoice.idx))
 
 
 @invoice_blueprint.route("/active_invoice/")
@@ -190,9 +150,7 @@ def submit_invoice(invoice_id):
     invoice.status = "closed"
     db.session.merge(invoice)
     db.session.commit()
-    for product in invoice.invoice_products:
-        update_quantity(product.product_idx, product.quantity)
-    flash(f"Invoice #{invoice_id} was submitted successfully", "success")
+    flash(f"Invoice #{invoice_id} {invoice.name} was submitted successfully", "success")
     return redirect(url_for("invoice.invoice", invoice_id=invoice_id))
 
 
@@ -211,37 +169,30 @@ def edit_invoice(invoice_id):
 @invoice_blueprint.route("/invoices/<int:invoice_id>/<int:product_id>/edit/", methods=("GET", "POST"))
 @login_required
 def edit_product(invoice_id, product_id):
-    invoice = Invoice.query.get_or_404(invoice_id)
-    product = InvoiceProduct.query.filter_by(invoice_idx=invoice_id, idx=product_id).first()
-    source_product = Product.query.get(product.product_idx)
+    invoice: Invoice = Invoice.query.get_or_404(invoice_id)
+    product: InvoiceProduct = InvoiceProduct.query.filter_by(invoice_idx=invoice_id, idx=product_id).first()
+    source_product: Product = Product.query.get(product.product_idx)
     max_stock = source_product.quantity + product.quantity
-    product = singlify_product(product)
     form = InvoiceProductForm(obj=product)
     if form.validate_on_submit():
         form.populate_obj(product)
-        product = desinglify_product(product)
         if product.quantity > max_stock:
             flash(f"Cannot add items, max stock is {max_stock}", "danger")
             return redirect(url_for("invoice.edit_invoice", invoice_id=invoice_id))
         product.profit = product.sale_price - product.purchase_price
         source_product.quantity = max_stock - product.quantity
+        
         db.session.merge(product)
+        db.session.merge(source_product)
         db.session.commit()
+        invoice.calculate_totals()
+        db.session.merge(invoice)
+        db.session.commit()
+
         flash(f"Product {product.product.title} updated successfully", "success")
         return redirect(url_for("invoice.edit_invoice", invoice_id=invoice_id))
     return render_template("invoices/edit_product.html", form=form, invoice=invoice, product=product)
 
-def singlify_product(product: InvoiceProduct):
-    product.weight = product.weight / product.quantity
-    product.purchase_price = product.purchase_price / product.quantity
-    product.sale_price = product.sale_price / product.quantity
-    return product
-
-def desinglify_product(product: InvoiceProduct):
-    product.weight = product.weight * product.quantity
-    product.purchase_price = product.purchase_price * product.quantity
-    product.sale_price = product.sale_price * product.quantity
-    return product
 
 @invoice_blueprint.route("/invoices")
 @login_required
@@ -321,13 +272,6 @@ def assign_customer(invoice_id):
     db.session.commit()
     flash(f"Customer {customer.name} assigned to invoice #{invoice.idx}", "success")
     return redirect(url_for("invoice.invoice", invoice_id=invoice_id))
-
-
-def update_quantity(product_id, quantity):
-    product = Product.query.get_or_404(product_id)
-    product.quantity -= quantity
-    db.session.merge(product)
-    db.session.commit()
 
 
 @invoice_blueprint.route("/invoices/print/<int:invoice_id>")

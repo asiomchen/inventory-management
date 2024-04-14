@@ -121,10 +121,10 @@
                 </tr>
                 <tr>
                     <td>Total Tax:</td>
-                    <td style="text-align: left;">{{ '%0.2f'|format(invoice.customer_price - invoice.total_sale_price) }} $</td>
+                    <td style="text-align: left;">{{ '%0.2f'|format(invoice.total_customer_price - invoice.total_sale_price) }} $</td>
                 <tr>
                     <td>To Pay:</td>
-                    <td style="text-align: left;color: red;">{{ '%0.2f'|format(invoice.customer_price) }} $</td>
+                    <td style="text-align: left;color: red;">{{ '%0.2f'|format(invoice.total_customer_price) }} $</td>
                 </tr>
             </table>
         </div>

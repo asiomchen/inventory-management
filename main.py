@@ -11,7 +11,6 @@ from flask import (
     flash,
     jsonify,
 )
-from matplotlib import category
 from werkzeug.utils import secure_filename
 from flask_login import login_required
 import logging
@@ -174,6 +173,17 @@ def about():
 @main.post("/<int:product_id>/delete/")
 @login_required
 def delete(product_id):
+    logging.info("Deleting product")
+    open_invoices = Invoice.query.filter_by(status="open").all()
+    if open_invoices:
+        logging.info("Open invoices found")
+        product_present = InvoiceProduct.query.filter_by(product_idx=product_id).filter(
+            InvoiceProduct.invoice_idx.in_([invoice.idx for invoice in open_invoices])
+        ).first()
+        if product_present:
+            logging.info(f"Product is used in open invoice: {product_present.invoice.name}")
+            flash("Product is used in active invoice. Can't delete", "danger")
+            return redirect(url_for("main.index"))
     product = Product.query.get_or_404(product_id)
     db.session.delete(product)
     db.session.commit()
