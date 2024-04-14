@@ -53,6 +53,12 @@ def get_profit():
         query = query.with_entities(func.strftime(format, Invoice.date).label('sort_date'), 
                                     func.sum(Invoice.total_customer_price).label('total_profit'))
         query = query.order_by('sort_date')
+    start_date = request.args.get('start_date', None)
+    end_date = request.args.get('end_date', None)
+    if start_date:
+        query = query.filter(Invoice.date >= start_date)
+    if end_date:
+        query = query.filter(Invoice.date <= end_date)
     profit = query.all()
     profit = pd.DataFrame(profit)
     profit = profit.groupby('sort_date').sum().reset_index()

@@ -13,6 +13,8 @@
       <option value="100">100</option>
     </select>
   </div>
+
+<button class="btn btn-primary" onclick="fetchData()">Fetch</button>
 <div id="bestsellers"></div>
 
 <hr>
@@ -20,12 +22,19 @@
 <h2 class="text-center">Profit</h2>
 <div class="input-group mb-3">
     <label for="profit_by" class="input-group-text">Group by:</label>
-    <select id="profit_by" class="form-select" onclick="fetchProfit()">
+    <select id="profit_by" class="form-select">
       <option value="month">Month</option>
       <option value="year">Year</option>
       <option value="day">Day</option>
     </select>
 </div>
+<div class="input-group mb-3">
+    <label for="start_date" class="input-group-text">Start Date:</label>
+    <input type="date" id="start_date" class="form-control">
+    <label for="end_date" class="input-group-text">End Date:</label>
+    <input type="date" id="end_date" class="form-control">
+</div>
+<button class="btn btn-primary" onclick="fetchProfit()">Fetch</button>
 
 
 <div id="profit"></div>
@@ -46,7 +55,17 @@
 <script>
     function fetchProfit() {
         var group_by = document.getElementById('profit_by').value;
-        fetch('/dashboard/profit?profit_by=' + encodeURIComponent(group_by))
+        var base_url = '/dashboard/profit';
+        var start_date = document.getElementById('start_date').value;
+        var end_date = document.getElementById('end_date').value;
+        if (start_date && end_date) {
+            base_url += '?start_date=' + encodeURIComponent(start_date) + '&end_date=' + encodeURIComponent(end_date);
+        }
+        if (group_by) {
+            base_url += base_url.includes('?') ? '&' : '?';
+            base_url += 'profit_by=' + encodeURIComponent(group_by);
+        }
+        fetch(base_url)
             .then(response => response.json())
             .then(data => {
                 Plotly.newPlot('profit', data);
