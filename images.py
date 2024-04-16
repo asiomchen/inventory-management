@@ -12,7 +12,7 @@ def upload_image(image_path) -> Tuple[str, str]:
     upload_result = cloudinary.uploader.upload(
         image_path,
         resource_type="image",
-        folder="/flask_test",
+        folder="/inventory/",
     )
     secure_url = upload_result["secure_url"] # noqa
     public_id = upload_result["public_id"]

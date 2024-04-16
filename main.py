@@ -15,7 +15,7 @@ from werkzeug.utils import secure_filename
 from flask_login import login_required
 import logging
 from data import Product, InvoiceProduct, Invoice, Image, Category, Customer, db
-from images import upload_image
+from images import upload_image, delete_image
 from forms import ProductForm
 
 main = Blueprint("main", __name__)
@@ -185,8 +185,13 @@ def delete(product_id):
             flash("Product is used in active invoice. Can't delete", "danger")
             return redirect(url_for("main.index"))
     product = Product.query.get_or_404(product_id)
+    if product.photo:
+        public_id = product.photo.public_id
+        delete_image(public_id)
+        db.session.delete(product.photo)
     db.session.delete(product)
     db.session.commit()
+    flash("Product deleted successfully", "success")
     return redirect(url_for("main.index"))
 
 
