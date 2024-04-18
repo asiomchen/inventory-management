@@ -11,3 +11,4 @@ Werkzeug
 gunicorn
 python-dotenv
 pandas
+plotly
