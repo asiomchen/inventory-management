@@ -27,12 +27,14 @@ from images import upload_image, deliver_image
 from auth import auth as auth_blueprint
 from customer import customer as customer_blueprint
 from invoice import invoice_blueprint
-from pricing import pricing as pricing_blueprint
 from import_data import import_data as import_data_blueprint
 from analytics import dashboard
 import logging
 import sys
 import pymysql
+
+_blueprints = [ auth_blueprint, customer_blueprint, 
+               invoice_blueprint, import_data_blueprint, dashboard, main ]
 
 pymysql.install_as_MySQLdb()
 logging.basicConfig(level=logging.INFO)
@@ -52,13 +54,8 @@ def create_app():
     UPLOAD_FOLDER = os.path.join(basedir)
     app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-    app.register_blueprint(main)
-    app.register_blueprint(auth_blueprint)
-    app.register_blueprint(customer_blueprint)
-    app.register_blueprint(invoice_blueprint)
-    app.register_blueprint(pricing_blueprint)
-    app.register_blueprint(import_data_blueprint)
-    app.register_blueprint(dashboard)
+    for blueprint in _blueprints:
+        app.register_blueprint(blueprint)
     app.jinja_env.globals.update(deliver_image=deliver_image)
     db.init_app(app)
     migrate = Migrate(app, db)
