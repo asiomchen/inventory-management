@@ -1,12 +1,4 @@
-from flask import (
-    render_template,
-    url_for,
-    redirect,
-    Blueprint,
-    flash,
-    request,
-    jsonify
-)
+from flask import render_template, url_for, redirect, Blueprint, flash, request, jsonify
 from flask_login import login_required
 from data import Invoice, InvoiceProduct, Product, Customer, db
 from forms import InvoiceProductForm
@@ -14,6 +6,7 @@ import re
 import logging
 
 invoice_blueprint = Blueprint("invoice", __name__)
+
 
 @invoice_blueprint.route("/new_invoice/", methods=("POST",))
 @login_required
@@ -77,9 +70,11 @@ def add2invoice(product_id):
         ).first()
         invoice_product.quantity += quantity
     else:
-        invoice_product = InvoiceProduct.from_product(invoice_idx=invoice_id, product=product)
+        invoice_product = InvoiceProduct.from_product(
+            invoice_idx=invoice_id, product=product
+        )
         invoice_product.quantity = quantity
-    
+
     product.quantity -= quantity
     db.session.add(invoice_product)
     db.session.merge(product)
@@ -106,7 +101,6 @@ def invoice(invoice_id):
     return render_template(
         "invoices/invoice.html", invoice=invoice, products=products, customers=customers
     )
-
 
 
 @invoice_blueprint.route("/active_invoice/")
@@ -137,6 +131,7 @@ def rename(invoice_id):
     flash(f"Invoice #{invoice_id} {old_name} renamed to {new_name}", "success")
     return redirect(url_for("invoice.edit_invoice", invoice_id=invoice_id))
 
+
 @invoice_blueprint.route("/submit_invoice/<int:invoice_id>/")
 @login_required
 def submit_invoice(invoice_id):
@@ -166,11 +161,15 @@ def edit_invoice(invoice_id):
         return render_template("invoices/edit.html", invoice=invoice, products=products)
 
 
-@invoice_blueprint.route("/invoices/<int:invoice_id>/<int:product_id>/edit/", methods=("GET", "POST"))
+@invoice_blueprint.route(
+    "/invoices/<int:invoice_id>/<int:product_id>/edit/", methods=("GET", "POST")
+)
 @login_required
 def edit_product(invoice_id, product_id):
     invoice: Invoice = Invoice.query.get_or_404(invoice_id)
-    product: InvoiceProduct = InvoiceProduct.query.filter_by(invoice_idx=invoice_id, idx=product_id).first()
+    product: InvoiceProduct = InvoiceProduct.query.filter_by(
+        invoice_idx=invoice_id, idx=product_id
+    ).first()
     source_product: Product = Product.query.get(product.product_idx)
     max_stock = source_product.quantity + product.quantity
     form = InvoiceProductForm(obj=product)
@@ -181,7 +180,7 @@ def edit_product(invoice_id, product_id):
             return redirect(url_for("invoice.edit_invoice", invoice_id=invoice_id))
         product.profit = product.sale_price - product.purchase_price
         source_product.quantity = max_stock - product.quantity
-        
+
         db.session.merge(product)
         db.session.merge(source_product)
         db.session.commit()
@@ -191,7 +190,9 @@ def edit_product(invoice_id, product_id):
 
         flash(f"Product {product.product.title} updated successfully", "success")
         return redirect(url_for("invoice.edit_invoice", invoice_id=invoice_id))
-    return render_template("invoices/edit_product.html", form=form, invoice=invoice, product=product)
+    return render_template(
+        "invoices/edit_product.html", form=form, invoice=invoice, product=product
+    )
 
 
 @invoice_blueprint.route("/invoices")
@@ -212,25 +213,27 @@ def get_invoices():
     if customer_id:
         customer = Customer.query.get_or_404(customer_id)
         query = query.filter_by(customer_idx=customer.idx)
-    search = request.args.get('search[value]')
+    search = request.args.get("search[value]")
     if search:
-        query = query.filter(db.or_(
-            Invoice.name.like(f'%{search}%'),
-            Invoice.date.like(f'%{search}%'),
-            Invoice.status.like(f'%{search}%'),
-        ))
+        query = query.filter(
+            db.or_(
+                Invoice.name.like(f"%{search}%"),
+                Invoice.date.like(f"%{search}%"),
+                Invoice.status.like(f"%{search}%"),
+            )
+        )
     total_filtered = query.count()
 
     # sorting
     order = []
     i = 0
     while True:
-        col_index = request.args.get(f'order[{i}][column]')
+        col_index = request.args.get(f"order[{i}][column]")
         if col_index is None:
             break
-        col_name = request.args.get(f'columns[{col_index}][data]')
+        col_name = request.args.get(f"columns[{col_index}][data]")
 
-        descending = request.args.get(f'order[{i}][dir]') == 'desc'
+        descending = request.args.get(f"order[{i}][dir]") == "desc"
         col = getattr(Invoice, col_name)
         if descending:
             col = col.desc()
@@ -239,29 +242,35 @@ def get_invoices():
     if order:
         query = query.order_by(*order)
 
-    start = int(request.args.get('start', type=int))
-    length = int(request.args.get('length', type=int))
+    start = int(request.args.get("start", type=int))
+    length = int(request.args.get("length", type=int))
     query = query.offset(start).limit(length)
     data = []
     for invoice in query:
-        data.append({
-            "id": invoice.idx,
-            "name": invoice.name,
-            "date": invoice.date.strftime('%Y-%m-%d'),
-            "total_profit": str(invoice.total_profit) + "$",
-            "total_weight": str('%.2f' % invoice.total_weight) + "g",
-            "status": 'Closed' if invoice.status == 'closed' else 'Open',
-            "is_active": invoice.is_active
-        })
-    return jsonify({"data": data,
-                    "recordsTotal": total_filtered,
-                    "recordsFiltered": total_filtered,
-                    "draw": request.args.get('draw', type=int),
-                    })
+        data.append(
+            {
+                "id": invoice.idx,
+                "name": invoice.name,
+                "date": invoice.date.strftime("%Y-%m-%d"),
+                "total_profit": str(invoice.total_profit) + "$",
+                "total_weight": str("%.2f" % invoice.total_weight) + "g",
+                "status": "Closed" if invoice.status == "closed" else "Open",
+                "is_active": invoice.is_active,
+            }
+        )
+    return jsonify(
+        {
+            "data": data,
+            "recordsTotal": total_filtered,
+            "recordsFiltered": total_filtered,
+            "draw": request.args.get("draw", type=int),
+        }
+    )
 
 
-
-@invoice_blueprint.route("/invoices/<int:invoice_id>/assign_customer/", methods=["POST"])
+@invoice_blueprint.route(
+    "/invoices/<int:invoice_id>/assign_customer/", methods=["POST"]
+)
 @login_required
 def assign_customer(invoice_id):
     invoice = Invoice.query.get_or_404(invoice_id)
@@ -285,8 +294,9 @@ def print(invoice_id):
     if not invoice.customer:
         flash("Invoice has no customer, please add a customer first", "danger")
         return redirect(url_for("invoice.invoice", invoice_id=invoice_id))
-    return render_template("invoices/pdf_template.html", invoice=invoice, products=products)
-
+    return render_template(
+        "invoices/pdf_template.html", invoice=invoice, products=products
+    )
 
 
 def validate_name(name):

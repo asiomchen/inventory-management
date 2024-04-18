@@ -33,8 +33,14 @@ import logging
 import sys
 import pymysql
 
-_blueprints = [ auth_blueprint, customer_blueprint, 
-               invoice_blueprint, import_data_blueprint, dashboard, main ]
+_blueprints = [
+    auth_blueprint,
+    customer_blueprint,
+    invoice_blueprint,
+    import_data_blueprint,
+    dashboard,
+    main,
+]
 
 pymysql.install_as_MySQLdb()
 logging.basicConfig(level=logging.INFO)

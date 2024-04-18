@@ -14,7 +14,7 @@ from flask import (
 from werkzeug.utils import secure_filename
 from flask_login import login_required
 import logging
-from data import Product, InvoiceProduct, Invoice, Image, Category, Customer, db
+from data import Product, InvoiceProduct, Invoice, Image, Category, db
 from images import upload_image, delete_image
 from forms import ProductForm
 
@@ -26,7 +26,14 @@ main = Blueprint("main", __name__)
 def index():
     query = Product.query
     category_name = None
-    sortables = ["title", "quantity", "weight", "purchase_price", "sale_price", "profit"]
+    sortables = [
+        "title",
+        "quantity",
+        "weight",
+        "purchase_price",
+        "sale_price",
+        "profit",
+    ]
     if "category" in request.args:
         category_name = request.args["category"]
         category = Category.query.filter_by(name=category_name).first()
@@ -46,15 +53,14 @@ def index():
             else:
                 query = query.order_by(getattr(Product, sort_by))
 
-
     page = query.paginate(per_page=per_page)
     if len(page.items) == 0 and category_name:
         flash(f"No products found in the category: {category_name}", "warning")
         return redirect(url_for("main.index"))
     logging.info(f"{type(page)}")
     return render_template(
-        "index.html", page=page, products=page.items, category_name=category_name)
-
+        "index.html", page=page, products=page.items, category_name=category_name
+    )
 
 
 @main.route("/<int:product_id>/")
@@ -74,7 +80,9 @@ def uploaded_file(filename):
 @login_required
 def create():
     form = ProductForm()
-    form.category_idx.choices = [(category.idx, category.name) for category in Category.query.all()]
+    form.category_idx.choices = [
+        (category.idx, category.name) for category in Category.query.all()
+    ]
     if form.validate_on_submit():
         title = form.title.data
         description = form.description.data
@@ -112,7 +120,8 @@ def create():
             purchase_price=purchase_price,
             sale_price=sale_price,
             profit=profit,
-            category_idx=category_idx, volume=volume
+            category_idx=category_idx,
+            volume=volume,
         )
         db.session.add(product)
         db.session.commit()
@@ -126,7 +135,9 @@ def create():
 def edit(product_id):
     product = Product.query.get_or_404(product_id)
     form = ProductForm(obj=product)
-    form.category_idx.choices = [(category.idx, category.name) for category in Category.query.all()]
+    form.category_idx.choices = [
+        (category.idx, category.name) for category in Category.query.all()
+    ]
     if form.validate_on_submit():
         product.title = form.title.data
         product.description = form.description.data
@@ -145,9 +156,7 @@ def edit(product_id):
                 # Process the new photo and update the product's photo field
                 filename = secure_filename(photo.filename)
                 logging.info(f"New photo uploaded: {filename}")
-                photo.save(
-                    os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
-                )
+                photo.save(os.path.join(current_app.config["UPLOAD_FOLDER"], filename))
                 url, public_id = upload_image(
                     os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
                 )
@@ -177,11 +186,19 @@ def delete(product_id):
     open_invoices = Invoice.query.filter_by(status="open").all()
     if open_invoices:
         logging.info("Open invoices found")
-        product_present = InvoiceProduct.query.filter_by(product_idx=product_id).filter(
-            InvoiceProduct.invoice_idx.in_([invoice.idx for invoice in open_invoices])
-        ).first()
+        product_present = (
+            InvoiceProduct.query.filter_by(product_idx=product_id)
+            .filter(
+                InvoiceProduct.invoice_idx.in_(
+                    [invoice.idx for invoice in open_invoices]
+                )
+            )
+            .first()
+        )
         if product_present:
-            logging.info(f"Product is used in open invoice: {product_present.invoice.name}")
+            logging.info(
+                f"Product is used in open invoice: {product_present.invoice.name}"
+            )
             flash("Product is used in active invoice. Can't delete", "danger")
             return redirect(url_for("main.index"))
     product = Product.query.get_or_404(product_id)
@@ -200,29 +217,33 @@ def delete(product_id):
 def table():
     return render_template("products/table.html")
 
+
 @main.route("/api/products/")
 @login_required
 def get_products():
-
     query = Product.query
-    search = request.args.get('search[value]')
+    search = request.args.get("search[value]")
     if search:
         logging.info(f"Search by {search}")
         # if string like float_column>float or float_column<float we need to split it
         if re.match(r"([a-z_].+)([<>])(\d+\.?\d?)", search):
             logging.info(f"Search by {search}")
-            column, operator, value = re.match(r"([a-z_].+)([<>])(\d+\.?\d?)", search).groups()
-            if operator == '>':
+            column, operator, value = re.match(
+                r"([a-z_].+)([<>])(\d+\.?\d?)", search
+            ).groups()
+            if operator == ">":
                 query = query.filter(getattr(Product, column) > float(value))
-            elif operator == '<':
+            elif operator == "<":
                 query = query.filter(getattr(Product, column) < float(value))
         else:
-            query = query.filter(db.or_(
-                Product.title.like(f'%{search}%'),
-                Product.description.like(f'%{search}%'),
-                Product.category.has(Category.name.like(f'%{search}%')),
-                Product.quantity.like(f'%{search}%'),
-            ))
+            query = query.filter(
+                db.or_(
+                    Product.title.like(f"%{search}%"),
+                    Product.description.like(f"%{search}%"),
+                    Product.category.has(Category.name.like(f"%{search}%")),
+                    Product.quantity.like(f"%{search}%"),
+                )
+            )
     total_filtered = query.count()
 
     # Sorting
@@ -230,16 +251,16 @@ def get_products():
     order = []
     i = 0
     while True:
-        col_index = request.args.get(f'order[{i}][column]')
+        col_index = request.args.get(f"order[{i}][column]")
         if col_index is None:
             break
-        col_name = request.args.get(f'columns[{col_index}][data]')
+        col_name = request.args.get(f"columns[{col_index}][data]")
         logging.info(f"Sorting by {col_name}")
-        if col_name in ['photo', 'add2cart']:
-            col_name = 'title'
-        if col_name == 'category':
-            col_name = 'category_idx'
-        descending = request.args.get(f'order[{i}][dir]') == 'desc'
+        if col_name in ["photo", "add2cart"]:
+            col_name = "title"
+        if col_name == "category":
+            col_name = "category_idx"
+        descending = request.args.get(f"order[{i}][dir]") == "desc"
         col = getattr(Product, col_name)
         if descending:
             col = col.desc()
@@ -254,7 +275,7 @@ def get_products():
     data = []
     for product in query:
         data.append(
-            {   
+            {
                 "id": product.idx,
                 "title": product.title,
                 "description": product.description,
@@ -264,7 +285,9 @@ def get_products():
                 "sale_price": product.sale_price,
                 "profit": product.profit,
                 "category": product.category.name,
-                "photo": product.photo.url if product.photo else current_app.url_for("static", filename="no-photo.bmp"),
+                "photo": product.photo.url
+                if product.photo
+                else current_app.url_for("static", filename="no-photo.bmp"),
                 "volume": product.volume,
             }
         )
@@ -276,5 +299,3 @@ def get_products():
             "draw": request.args.get("draw"),
         }
     )
-
-
