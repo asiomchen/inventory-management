@@ -4,6 +4,7 @@ from images import upload_image
 from sqlalchemy.sql import func
 from flask_login import UserMixin
 from dataclasses import dataclass
+
 product_categories = [
     "kettles",
     "yixing pots",
@@ -59,7 +60,7 @@ class Product(db.Model):
 
     def __repr__(self):
         return "<Product %r>" % self.title
-    
+
     @classmethod
     def from_wix(cls, product: ImportedProduct):
         photo_url = product.photo
@@ -82,13 +83,13 @@ class Product(db.Model):
             purchase_price=product.purchase_price,
             sale_price=product.sale_price,
             volume=product.volume,
-            profit = product.sale_price - product.purchase_price)
+            profit=product.sale_price - product.purchase_price,
+        )
 
 
-    
 @dataclass
 class ImportedProduct:
-    title: str 
+    title: str
     category_idx: int = 0
     description: str = ""
     photo: str = None
@@ -96,7 +97,7 @@ class ImportedProduct:
     weight: float = 0
     purchase_price: float = 0
     sale_price: float = 0
-    volume: float  = 0
+    volume: float = 0
 
 
 class InvoiceProduct(db.Model):
@@ -104,14 +105,34 @@ class InvoiceProduct(db.Model):
     invoice_idx = db.Column(db.Integer, db.ForeignKey("invoice.idx"))
     product_idx = db.Column(db.Integer, db.ForeignKey("product.idx"))
     product = db.relationship("Product", backref="invoice", lazy=True)
+    category_idx = db.Column(db.Integer, db.ForeignKey("category.idx"))
+    category = db.relationship("Category", backref="invoice", lazy=True)
     quantity = db.Column(db.Integer)
     weight = db.Column(db.Float)
     purchase_price = db.Column(db.Float)
     sale_price = db.Column(db.Float)
     profit = db.Column(db.Float)
+    title = db.Column(db.String(255))
 
     def __repr__(self):
         return "<InvoiceProduct %r>" % self.idx
+
+    @classmethod
+    def from_product(cls, invoice_idx: int, product: Product):
+        """
+        Create an InvoiceProduct object from a Product object."""
+
+        return cls(
+            invoice_idx=invoice_idx,
+            product_idx=product.idx,
+            category_idx=product.category_idx,
+            quantity=1,
+            weight=product.weight,
+            purchase_price=product.purchase_price,
+            sale_price=product.sale_price,
+            profit=product.sale_price - product.purchase_price,
+            title=product.title,
+        )
 
 
 class Invoice(db.Model):
@@ -123,13 +144,36 @@ class Invoice(db.Model):
     total_purchase_price = db.Column(db.Float, default=0)
     total_sale_price = db.Column(db.Float, default=0)
     total_profit = db.Column(db.Float, default=0)
-    customer_price = db.Column(db.Float, default=0)
+    total_customer_price = db.Column(db.Float, default=0)
     status = db.Column(db.String(255), default="open")
     is_active = db.Column(db.Boolean, default=True)
     customer_idx = db.Column(
         db.Integer, db.ForeignKey("customer.idx"), nullable=True, default=None
     )
     customer = db.relationship("Customer", backref="invoice", lazy=True)
+
+    def calculate_totals(self):
+        """
+        Calculate the total weight, purchase price, sale price, and profit of the invoice.
+        """
+        self.total_weight = sum(
+            product.weight * product.quantity for product in self.invoice_products
+        )
+        self.total_purchase_price = sum(
+            product.purchase_price * product.quantity
+            for product in self.invoice_products
+        )
+        self.total_sale_price = sum(
+            product.sale_price * product.quantity for product in self.invoice_products
+        )
+        self.total_profit = self.total_sale_price - self.total_purchase_price
+
+        self.total_customer_price = sum(
+            product.sale_price
+            * product.quantity
+            * (1 + product.category.tax_rate / 100)
+            for product in self.invoice_products
+        )
 
     def __repr__(self):
         return "<Invoice %r>" % self.idx
