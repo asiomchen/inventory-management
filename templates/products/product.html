@@ -31,15 +31,15 @@
                 {% endif %}
                 <tr>
                     <td>Weight</td>
-                    <td>{{ product.weight }} g</td>
+                    <td>{{ '%.2f' | format(product.weight) }} g</td>
                 </tr>
                 <tr>
                     <td>Purchase price</td>
-                    <td>{{ product.purchase_price }} $</td>
+                    <td>{{ '%.2f' | format(product.purchase_price) }} $</td>
                 </tr>
                 <tr>
                     <td>Sale price</td>
-                    <td>{{ product.sale_price }} $</td>
+                    <td>{{ '%.2f' | format(product.sale_price) }} $</td>
                 </tr>
                 <tr>
                     <td>Quantity</td>
@@ -47,7 +47,7 @@
                 </tr>
                 <tr>
                     <td>Profit</td>
-                    <td>{{ product.profit }} $</td>
+                    <td>{{ '%.2f' | format(product.profit) }} $</td>
                 </tr>
             </table>
             <form action="{{ url_for('invoice.add2invoice', product_id=product.idx) }}" method="post">

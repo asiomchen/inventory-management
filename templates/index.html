@@ -44,10 +44,10 @@
                         </div>
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item custom-li">Weight: {{ product.weight }} g</li>
-                            <li class="list-group-item custom-li">Purchase Price: ${{ product.purchase_price }}</li>
-                            <li class="list-group-item custom-li">Sale Price: ${{ product.sale_price }}</li>
+                            <li class="list-group-item custom-li">Purchase Price: ${{ '%.2f' | format(product.purchase_price) }}</li>
+                            <li class="list-group-item custom-li">Sale Price: ${{ '%.2f' | format(product.sale_price) }}</li>
                             <li class="list-group-item custom-li">Quantity: {{ product.quantity }}</li>
-                            <li class="list-group-item custom-li">Profit: ${{ product.profit }}</li>
+                            <li class="list-group-item custom-li">Profit: ${{ '%.2f' | format(product.profit) }}</li>
                         </ul>
                         <div class="mt-auto text-center">
                             <a href="{{ url_for('main.product', product_id=product.idx)}}" class="btn btn-primary">Details</a>

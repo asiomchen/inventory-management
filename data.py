@@ -183,6 +183,8 @@ class User(UserMixin, db.Model):
     idx = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(255), nullable=False)
     password = db.Column(db.String(255), nullable=False)
+    unsuccesful_logins = db.Column(db.Integer, default=0)
+    block_time = db.Column(db.DateTime, default=None)
 
     def get_id(self):
         return self.idx

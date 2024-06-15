@@ -92,22 +92,23 @@
             <thead class="thead-light">
                 <tr>
                     <th>Product</th>
-                    <th>Sale Price ($)</th>
                     <th>Quantity</th>
+                    <th>Sale Price per piece ($)</th>
                     <th>Tax Rate (%)</th>
-                    <th>Total Price ($)</th>
-                    <th>Tax ($)</th>
+                    <th>Total Tax </th>
+                    <th>Total Price($)</th>
+                    
                 </tr>
             </thead>
             <tbody>
                 {% for product in products %}
                     <tr>
                         <td>{{ product.title }}</td>
-                        <td>{{ '%0.2f'|format(product.sale_price / product.quantity) }}</td>
                         <td>{{ product.quantity }}</td>
-                        <td>{{ '%i'|format(product.category.tax_rate) }}</td>
                         <td>{{ '%0.2f'|format(product.sale_price) }}</td>
-                        <td>{{ '%0.2f'|format(product.sale_price * (product.category.tax_rate / 100)) }}</td>
+                        <td>{{ '%i'|format(product.category.tax_rate) }}</td>
+                        <td>{{ '%0.2f'|format(product.quantity *product.sale_price * (product.category.tax_rate / 100))  }}</td>
+                        <td>{{ '%0.2f'|format(product.quantity * (product.sale_price + (product.sale_price * (product.category.tax_rate / 100)))) }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

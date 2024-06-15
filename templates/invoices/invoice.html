@@ -57,11 +57,11 @@
                 <tr>
                     <td>{{ product.title }}</td>
                     <td>{{ '%0.2f'|format(product.weight) }}</td>
-                    <td>{{ product.purchase_price }}</td>
-                    <td>{{ product.sale_price}}</td>
+                    <td>{{ '%0.2f'|format(product.purchase_price) }}</td>
+                    <td>{{ '%0.2f'|format(product.sale_price)}}</td>
                     <td>{{ product.quantity }}</td>
                     <td>{{ '%i'|format(product.category.tax_rate) }}</td>
-                    <td>{{ product.profit }}</td>
+                    <td>{{ '%0.2f'|format(product.profit) }}</td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -69,7 +69,7 @@
     </div>
 </div>
 <div class="container align-items-right text-right shadow-lg p-2 mb-2 mt-1 bg-body rounded">
-    <h4 class="text-right">Total profit: {{ invoice.total_profit }} $</h4>
+    <h4 class="text-right">Total profit: {{ '%0.2f'|format(invoice.total_profit) }} $</h4>
     <h4 class="text-right">Total weight: {{ '%0.2f'|format(invoice.total_weight) }} g</h4>
     <h4 class="text-right">Total net price: {{ '%0.2f'|format(invoice.total_sale_price) }} $</h4>
     <h4 class="text-right">To pay: {{ '%0.2f'|format(invoice.total_customer_price) }} $</h4>
