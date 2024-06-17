@@ -2,7 +2,7 @@ import os
 import random
 from venv import logger
 from flask import (
-    Flask,
+    Flask, request, redirect
 )
 from flask_login import LoginManager
 from flask_migrate import Migrate
@@ -135,11 +135,11 @@ def create_app():
             """Inject categories into all templates for navbar"""
             categories = Category.query.all()
             return dict(categories=categories)
-        @app.before_request
-        def before_request():
-            if not request.is_secure:
-                url = request.url.replace('http://', 'https://', 1)
-                code = 301
-                return redirect(url, code=code)
-
+        if os.environ.get("APP_ENV") != "dev":
+            @app.before_request
+            def before_request():
+                if not request.is_secure:
+                    url = request.url.replace('http://', 'https://', 1)
+                    code = 301
+                    return redirect(url, code=code)
     return app
