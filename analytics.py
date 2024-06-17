@@ -30,11 +30,12 @@ def best_selling_products():
         func.sum(InvoiceProduct.quantity).label("total_quantity"),
     )
     query = query.group_by(Product.idx)
-    query = query.order_by(func.sum(InvoiceProduct.quantity).asc())
+    query = query.order_by(func.sum(InvoiceProduct.quantity).desc())
     lim = request.args.get("limit", 5)
     bestsellers = query.limit(lim).all()
     bestsellers = pd.DataFrame(bestsellers)
     bestsellers.columns = ["idx", "Title", "Total Quantity"]
+    bestsellers = bestsellers.iloc[::-1]
     fig = px.bar(
         bestsellers,
         x="Total Quantity",

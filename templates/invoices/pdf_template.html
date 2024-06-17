@@ -93,9 +93,9 @@
                 <tr>
                     <th>Product</th>
                     <th>Quantity</th>
-                    <th>Sale Price per piece ($)</th>
+                    <th>Unit price ($)</th>
                     <th>Tax Rate (%)</th>
-                    <th>Total Tax </th>
+                    <th>Unit Tax </th>
                     <th>Total Price($)</th>
                     
                 </tr>
@@ -107,7 +107,7 @@
                         <td>{{ product.quantity }}</td>
                         <td>{{ '%0.2f'|format(product.sale_price) }}</td>
                         <td>{{ '%i'|format(product.category.tax_rate) }}</td>
-                        <td>{{ '%0.2f'|format(product.quantity *product.sale_price * (product.category.tax_rate / 100))  }}</td>
+                        <td>{{ '%0.3f'|format(product.sale_price * (product.category.tax_rate / 100))  }}</td>
                         <td>{{ '%0.2f'|format(product.quantity * (product.sale_price + (product.sale_price * (product.category.tax_rate / 100)))) }}</td>
                     </tr>
                 {% endfor %}
@@ -131,6 +131,7 @@
         </div>
         
         <div class="footer">
+            <p>Invoice ID: {{ invoice.idx }}</p>
             <p>Date: {{ invoice.date }}</p>
             <p>Thank you for your purchase!</p>
         </div>

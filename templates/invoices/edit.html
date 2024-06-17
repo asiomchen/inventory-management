@@ -46,8 +46,8 @@
                             {{ product.title }}
                         </a>
                     </td>
-                    <td>{{ product.purchase_price / product.quantity }}</td>
-                    <td>{{ product.sale_price / product.quantity }}</td>
+                    <td>{{ product.purchase_price}}</td>
+                    <td>{{ product.sale_price }}</td>
                     <td>{{ product.quantity }}</td>
                     <td>
                         <a href="{{ url_for('invoice.edit_product', invoice_id=invoice.idx, product_id=product.idx) }}" class="btn btn-primary btn-sm">Edit</a>
