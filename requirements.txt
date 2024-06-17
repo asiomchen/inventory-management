@@ -4,6 +4,7 @@ Flask-SQLAlchemy
 Flask-WTF
 bootstrap-flask
 Flask-Migrate
+flask-talisman
 pymysql[rsa]
 randimage
 SQLAlchemy
