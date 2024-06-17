@@ -2,11 +2,12 @@ import os
 import random
 from venv import logger
 from flask import (
-    Flask, request, redirect
+    Flask,
 )
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_bootstrap import Bootstrap5 as Bootstrap
+from flask_talisman import Talisman
 from werkzeug.security import generate_password_hash
 from utils import generate_random_image
 from data import (
@@ -65,6 +66,20 @@ def create_app():
     app.jinja_env.globals.update(deliver_image=deliver_image)
     db.init_app(app)
     migrate = Migrate(app, db)
+    csp = {
+ 'default-src': [
+        '\'self\'',
+        'cdnjs.cloudflare.com'
+        'cdn.jsdelivr.net',
+        'code.jquery.com'
+        '\'unsafe-inline\'',
+        'stackpath.bootstrapcdn.com',
+        'cdn.datatables.net',
+    ],
+'img-src': [ '\'self\'', 'data:', 'res.cloudinary.com' ],
+
+}
+    talisman = Talisman(app, content_security_policy=[])
     login_manager = LoginManager()
     login_manager.login_view = "auth.login"
     login_manager.init_app(app)
@@ -135,11 +150,4 @@ def create_app():
             """Inject categories into all templates for navbar"""
             categories = Category.query.all()
             return dict(categories=categories)
-        if os.environ.get("APP_ENV") != "dev":
-            @app.before_request
-            def before_request():
-                if not request.is_secure:
-                    url = request.url.replace('http://', 'https://', 1)
-                    code = 301
-                    return redirect(url, code=code)
     return app
