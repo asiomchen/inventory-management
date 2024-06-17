@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 auth = Blueprint("auth", __name__)
 MAX_UNSUCCESSFUL_LOGINS = 5
-BLOCK_TIME = timedelta(minutes=2)
+BLOCK_TIME = timedelta(minutes=10)
 
 @auth.route("/login")
 def login():
