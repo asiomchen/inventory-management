@@ -3,11 +3,11 @@
 [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/ZrUYhl?referralCode=0IjPN6)
 
 
-To deploy your own instance of this app, click the button above. You will need to sign in with your GitHub account, and then Railway will guide you through the deployment process.
+To deploy your own instance of this app, click the button above. You will need to sign in with your Railway account, and then Railway will guide you through the deployment process.
 
 To deploy this app, you will need to have a Railway account. If you don't have one, you can sign up for free [here](https://railway.app).
 
-Also for storing the imgaes you need to have a cloudinary account. If you don't have one, you can sign up for free [here](https://cloudinary.com).
+Also for storing the images you need to have a cloudinary account. If you don't have one, you can sign up for free [here](https://cloudinary.com).
 
 Cloudinary free tier is quite generous and should be enough for most use cases.
 
